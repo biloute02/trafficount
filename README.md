@@ -1,8 +1,22 @@
+## Téléchargement de vidéo
+
+Utiliser `yt-dlp`: https://github.com/yt-dlp
+
+```
+# Lister les formats
+.\yt-dlp.exe --list-formats url
+
+# Télécharger entre la seconde 100 et 150 du flux 243
+.\yt-dlp.exe --format 243 --download-sections "*250-265" url
+```
+
 ## Plan
 
 Plan de développement du prototype
 
 ### v1
+
+* Système hors connexion (connexion perdu ou totalement)
 
 * Contrôle du raspberry pi (marche / arrêt)
 
