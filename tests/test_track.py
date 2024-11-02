@@ -9,13 +9,18 @@ model = YOLO("yolo11n.pt")
 
 # Start tracking objects in a video
 model.track(
-    source = "videos/tokyo_cats_festival_foule_720p.webm",
-    #source=0,
+    #source = "videos/D02.mp4",
+    #source = "videos/tokyo_cats_festival_foule_720p.webm",
+    #source = "videos/moi.mp4",
+    source=0,
     #imgsz=(1080, 1920),
-    imgsz=(720, 1280),
+    #imgsz=(720, 1280),
+    #imgsz=1280,
     #imgsz=(360, 640),
-    stream_buffer=True,
+    stream_buffer=False,
+    #vid_stride=3,
     show=True,
-    conf=0.5,
-    classes=[0]
+    conf=0.3,
+    tracker="./trackers/my_botsort_tracker.yaml",
+    #classes=[0]
 )

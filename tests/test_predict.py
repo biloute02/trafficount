@@ -22,8 +22,8 @@ model = YOLO("yolo11n.pt")
 model.predict(
 
     ## Arguments pour l’inférence
-    source="https://youtu.be/wnLQaSm8LhM?feature=shared", # Flux vidéo
-    #source=0,                                            # Flux de la caméra 0
+    #source="https://youtu.be/wnLQaSm8LhM?feature=shared", # Flux vidéo
+    source=0,                                            # Flux de la caméra 0
     conf=0.5,               # Taux minimum du confiance autorisé
     imgsz=(360, 640),       # Meilleur résolution -> meilleur détection
     device="cpu",           # Utiliser le CPU
@@ -38,7 +38,7 @@ model.predict(
     ## Paramètres du stream
     stream_buffer=False,    # Bufferiser les frames du flux. Désactiver pour ne pas traiter les frames en retard
     #stream=True,           # Same than stream_buffer. See https://github.com/orgs/ultralytics/discussions/12848
-    vid_stride=1,           # Number of frames to skip (30 is one frame per second for a 30fps camera)
+    vid_stride=1,           # Number of frames to skip (30 is one frame per second for a 30fps video). Only use this for video inputs (not cameras)!
 
     ## Arguments pour la visualisation
     show=True,
