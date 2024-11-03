@@ -10,6 +10,14 @@ Utiliser `yt-dlp`: https://github.com/yt-dlp
 .\yt-dlp.exe --format 243 --download-sections "*250-265" url
 ```
 
+## Conversion de vidéos
+
+Utiliser ffmpeg:
+
+```
+ ffmpeg -i .\brutes\FAC.MOV -an -ss 00:00:12 -to 00:00:37 -vf scale=640:-1 FAC_360p.webm
+```
+
 ## Plan
 
 Plan de développement du prototype
