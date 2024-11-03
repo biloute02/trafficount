@@ -1,6 +1,11 @@
 from aiohttp import web
 from counter import Counter
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
 class Web:
 
     def __init__(self, counter: Counter) -> None:
@@ -19,7 +24,7 @@ class Web:
         text = str(self.counter.last_result.boxes)
         return web.Response(text=text)
 
-    async def handle(self, request) -> web.Response:
+    async def handle_root(self, request) -> web.Response:
         """
         """
         text =  f"people_count     = {self.counter.people_count}\n"
@@ -31,9 +36,10 @@ class Web:
         app.add_routes([web.get('/test/', self.handle_test),
                         web.get('/test/{name}', self.handle_test),
                         web.get('/results', self.handle_track_results),
-                        web.get('/', self.handle)])
+                        web.get('/', self.handle_root)])
 
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, "localhost", 8080)
         await site.start()
+        logger.info("Web started")
