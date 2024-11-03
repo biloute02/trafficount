@@ -6,6 +6,8 @@ from ultralytics import YOLO # type: ignore
 from ultralytics.engine.results import Results # type: ignore
 
 import logging
+
+from pgclient import PGClient
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -14,9 +16,11 @@ class Counter:
 
     def __init__(
         self,
+        pgclient: PGClient,
         delay: float = 0.5,
         confidence: float = 0.20,
     ) -> None:
+        self.pgclient = pgclient
 
         # Parameters
         self.delay: float = delay
@@ -98,9 +102,11 @@ class Counter:
                 else:
                     self.people_count = 0
 
+                # Export the results to the database
+                self.pgclient.insert_row(self.people_count)
+
                 # Visualize the results on the frame
                 annotated_frame = results[0].plot()
-
                 # Display the annotated frame
                 cv2.imshow("YOLO11 Tracking", annotated_frame)
 

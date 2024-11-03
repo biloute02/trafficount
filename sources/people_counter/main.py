@@ -3,6 +3,7 @@ from aiohttp import web
 import logging
 
 from counter import Counter
+from pgclient import PGClient
 from web import Web
 
 
@@ -15,10 +16,12 @@ logger.setLevel(logging.DEBUG)
 
 
 async def main():
-    counter = Counter()
+    pgclient = PGClient()
+    counter = Counter(pgclient)
     web = Web(counter)
 
     await asyncio.gather(
+        pgclient.start_pgclient(),
         counter.start_counter(),
         web.start_web(),
     )
