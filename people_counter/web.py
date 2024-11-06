@@ -1,5 +1,5 @@
 from aiohttp import web
-from counter import Counter
+from people_counter.counter import Counter
 
 import logging
 logger = logging.getLogger(__name__)

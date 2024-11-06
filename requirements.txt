@@ -1,4 +1,10 @@
+# Objet detection
 numpy
 opencv-python
 ultralytics
+
+# Web server
 aiohttp
+
+# Database
+supabase

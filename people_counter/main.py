@@ -1,10 +1,9 @@
 import asyncio
-from aiohttp import web
 import logging
 
-from counter import Counter
-from pgclient import PGClient
-from web import Web
+from people_counter.counter import Counter
+from people_counter.pgclient import PGClient
+from people_counter.web import Web
 
 
 logging.basicConfig(
