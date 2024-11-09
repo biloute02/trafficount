@@ -1,11 +1,14 @@
 import asyncio
 import time
+from typing import Optional
 import cv2
 import logging
 from ultralytics import YOLO # type: ignore
 from ultralytics.engine.results import Results # type: ignore
 
+
 from people_counter.pgclient import PGClient
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -16,18 +19,21 @@ class Counter:
     def __init__(
         self,
         pgclient: PGClient,
-        delay: float = 0.5,
+        delay: float = 1,
         confidence: float = 0.20,
     ) -> None:
+        # Postgres client
         self.pgclient = pgclient
 
         # Parameters
         self.delay: float = delay
         self.confidence: float = confidence
 
-        # Camera and model
-        self.cap: cv2.VideoCapture
-        self.model: YOLO
+        # Camera
+        self.cap: Optional[cv2.VideoCapture] = None
+
+        # Detection model
+        self.model: Optional[YOLO] = None
 
         # Results
         self.last_result: Results
@@ -42,12 +48,17 @@ class Counter:
         Load the YOLO11 model.
         """
         # TODO: Catch exception or error?
-        self.model = YOLO(
-            model="yolo11n.pt",
-            verbose=True,
-        )
-        logger.info("Model loaded")
-        return True
+        try:
+            self.model = YOLO(
+                model="yolo11n.pt",
+                verbose=True,
+            )
+            logger.info("Model loaded")
+            return True
+
+        except Exception:
+            logger.exception("Failed to load the model")
+            return False
 
     def init_camera(self) -> bool:
         """
@@ -66,6 +77,9 @@ class Counter:
         """
         Do tracking until error
         """
+        if self.cap is None or self.model is None:
+            logger.error("Can't do tracking if the capture device or the model are None")
+            return
 
         last_time: float = time.time()
 
@@ -83,7 +97,8 @@ class Counter:
                 # Run YOLO11 tracking on the frame, persisting tracks between frames
                 results = self.model.track(
                     frame,
-                    persist=True
+                    persist=True,
+                    verbose=False, # Suppress inference messages
                 )
 
                 # There is only one result because it is tracking
@@ -91,15 +106,17 @@ class Counter:
                 self.last_result = results[0]
 
                 # Get the greatest_id since the begin of the simulation
-                #result.boxes.id.int().cpu().tolist()
-                if results[0].boxes.id:
+                # boxes.id is None if nothing is detected
+                # BEWARE!: boxes.id has no boolean value
+                # https://discuss.pytorch.org/t/boolean-value-of-tensor-with-more-than-one-value-is-ambiguous/151004/2
+                if results[0].boxes.id is None:
+                    self.pepole_count = 0
+                else:
                     self.people_count = len(results[0].boxes.id)
                     self.greatest_id = max(
                         self.greatest_id,
-                        max(results[0].boxes.id.cpu().int().tolist())
+                        max(results[0].boxes.id.int().tolist())
                     )
-                else:
-                    self.people_count = 0
 
                 # Export the results to the database
                 self.pgclient.insert_row(self.people_count)
@@ -135,6 +152,7 @@ class Counter:
     def free_camera(self):
         # Release the video capture object and close the display window
         self.cap.release()
+        self.cap = None
         cv2.destroyAllWindows()
         logger.info("Video capture released")
 
@@ -142,28 +160,28 @@ class Counter:
         """
         :param delay: delay between to inference in second
         """
-        # Init the model
-        if not self.init_model():
+        # Init the model at startup
+        self.init_model()
+
+        logger.info("Counter daemon started")
+        # Retry if a camera or tracking error occured
+        while True:
+
+            # Wait the model is initiated (either at startup or in the web)
+            if self.model is None:
+                await asyncio.sleep(10)
+                continue
+
+            # Init the camera
+            if self.cap is None and not self.init_camera():
+                await asyncio.sleep(10)
+                continue
+
+            # Start tracking
+            await self.do_tracking()
+
+            # Free the camera
+            self.free_camera()
+
+            # Retry in 10 seconds
             await asyncio.sleep(10)
-            return
-
-        try:
-            # Retry if a camera or tracking error occured
-            while True:
-                # Init the camera
-                if not self.init_camera():
-                    await asyncio.sleep(10)
-                    continue
-
-                # Start tracking
-                # TODO: Function is never exiting
-                await self.do_tracking()
-
-                # Free the camera
-                self.free_camera()
-
-        except Exception as e:
-            # Save exception for debugging (web server)
-            self.last_exception = e
-
-            logger.exception(f"An exception occured which failed the tracking")

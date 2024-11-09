@@ -1,0 +1,9 @@
+FROM ultralytics/ultralytics:latest-cpu
+
+WORKDIR /trafficount
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY sources ./sources/
+COPY trackers ./trackers/

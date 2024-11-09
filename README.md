@@ -1,3 +1,11 @@
+## Docker
+
+Build the images:
+
+```
+docker build -f .\docker\Dockerfile-cpu -t trafficount-cpu .
+```
+
 ## Téléchargement de vidéo
 
 Utiliser `yt-dlp`: https://github.com/yt-dlp

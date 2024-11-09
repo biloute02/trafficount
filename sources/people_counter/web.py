@@ -1,5 +1,8 @@
 from aiohttp import web
+
+
 from people_counter.counter import Counter
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -42,4 +45,4 @@ class Web:
         await runner.setup()
         site = web.TCPSite(runner, "localhost", 8080)
         await site.start()
-        logger.info("Web started")
+        logger.info("Web daemon started")

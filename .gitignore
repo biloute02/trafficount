@@ -1,6 +1,14 @@
+# Python
 .venv
+__pycache__
+
+# Environments
+.env
+
+# Python Torch
+*.pt
+
+# Videos
 *.mp4
 *.webm
 *.MOV
-*.pt
-.env
