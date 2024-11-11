@@ -1,6 +1,6 @@
 services:
   trafficount:
-    image: trafficount-arm:latest
+    image: biloute02/trafficount:latest-arm
     ports:
      - "8080:8080/tcp"
     devices:
@@ -10,3 +10,4 @@ services:
      - "/trafficount/sources/main_counter.py"
     env_file:
      - pgclient.env
+    restart: always # Redémarrer le conteneur au redémarrage

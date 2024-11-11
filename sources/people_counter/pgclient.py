@@ -29,7 +29,7 @@ class PGClient:
         self.table: str = table
 
         # Buffer of rows
-        self.row_buffer_size: int = 50
+        self.row_buffer_size: int = 3600
         self.row_buffer: deque[dict] = deque([], self.row_buffer_size)
 
         # Interval for inserting to the database

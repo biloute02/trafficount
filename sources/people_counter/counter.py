@@ -97,7 +97,8 @@ class Counter:
                 # Run YOLO11 tracking on the frame, persisting tracks between frames
                 results = self.model.track(
                     frame,
-                    persist=True,
+                    persist=True, # Do tracking by comparing with the result of the last frame
+                    classes=[0], # Detect only persons
                     verbose=False, # Suppress inference messages
                 )
 
@@ -110,7 +111,7 @@ class Counter:
                 # BEWARE!: boxes.id has no boolean value
                 # https://discuss.pytorch.org/t/boolean-value-of-tensor-with-more-than-one-value-is-ambiguous/151004/2
                 if results[0].boxes.id is None:
-                    self.pepole_count = 0
+                    self.people_count = 0
                 else:
                     self.people_count = len(results[0].boxes.id)
                     self.greatest_id = max(
