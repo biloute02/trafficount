@@ -33,7 +33,7 @@ class PGClient:
         self.row_buffer: deque[dict] = deque([], self.row_buffer_size)
 
         # Interval for inserting to the database
-        self.insert_delay: int = 10
+        self.insert_delay: int = 60
 
     def insert_row(
         self,
@@ -65,7 +65,7 @@ class PGClient:
                 .execute()
             )
             self.row_buffer.clear()
-            logger.info(f"Buffer inserted to the table {self.table}")
+            logger.info(f"Buffer inserted to {self.table}")
             return True
         except Exception:
             logger.exception("Failed to insert the buffer to the database")
@@ -111,5 +111,5 @@ class PGClient:
             # Insert the buffer to the databse
             if not await self.insert_buffer():
                 failed_sleep_delay = 60
-                logger.info(f"{failed_sleep_delay} minutes sleep")
+                logger.info(f"{failed_sleep_delay} minutes sleep before retrying insertion")
                 await asyncio.sleep(failed_sleep_delay)

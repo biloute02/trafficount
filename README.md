@@ -3,7 +3,16 @@
 Build the images:
 
 ```
-docker build -f .\docker\Dockerfile-cpu -t trafficount-cpu .
+docker build -f .\docker\Dockerfile-cpu -t {registry}/trafficount:latest-cpu .
+docker build -f .\docker\Dockerfile-cpu -t {registry}/trafficount:0.0.1-cpu .
+docker build -f .\docker\Dockerfile-arm -t {registry}/trafficount:latest-arm .
+docker build -f .\docker\Dockerfile-arm -t {registry}/trafficount:0.0.1-arm .
+```
+
+Push the images:
+
+```
+docker push biloute02/trafficount:{tag}
 ```
 
 ## Téléchargement de vidéo

@@ -122,9 +122,9 @@ class Counter:
                 self.pgclient.insert_row(self.people_count)
 
                 # Visualize the results on the frame
-                annotated_frame = results[0].plot()
+                #annotated_frame = results[0].plot()
                 # Display the annotated frame
-                cv2.imshow("YOLO11 Tracking", annotated_frame)
+                #cv2.imshow("YOLO11 Tracking", annotated_frame)
 
                 # Wait 1 millisecond. Break the loop if 'q' is pressed
                 # TODO: Change the exist method for production
@@ -174,14 +174,15 @@ class Counter:
 
             # Init the camera
             if self.cap is None and not self.init_camera():
-                await asyncio.sleep(10)
+                await asyncio.sleep(60)
                 continue
 
             # Start tracking
             await self.do_tracking()
 
             # Free the camera
-            self.free_camera()
+            if self.cap is not None:
+                self.free_camera()
 
             # Retry in 10 seconds
             await asyncio.sleep(10)

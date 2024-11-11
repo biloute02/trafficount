@@ -1,0 +1,12 @@
+services:
+  trafficount:
+    image: trafficount-arm:latest
+    ports:
+     - "8080:8080/tcp"
+    devices:
+     - "/dev/video0:/dev/video0"
+    entrypoint:
+     - python
+     - "/trafficount/sources/main_counter.py"
+    env_file:
+     - pgclient.env
