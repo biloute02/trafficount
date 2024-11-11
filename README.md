@@ -15,6 +15,42 @@ Push the images:
 docker push biloute02/trafficount:{tag}
 ```
 
+## Run the image
+
+### Docker
+
+Create `pgclient.env`:
+
+```
+SUPABASE_URL="https://x.x.x.x:8443/"
+SUPABASE_KEY="x"
+SUPABASE_TABLE="detections_personnes"
+```
+
+Run:
+
+```
+docker run --env-file docker/pgclient.env --name trafficount -it --rm trafficount:latest-cpu python3 /trafficount/sources/main_counter.py
+```
+```
+docker-compose up
+```
+
+### Python client Windows
+
+```ps
+$Env:SUPABASE_URL = "https://x.x.x.x:8443/"
+$Env:SUPABASE_KEY = "x"
+$ENV:SUPABASE_TABLE = "detections_personnes"
+```
+
+Run:
+
+```
+.\.venv\Scripts\Activate.ps1
+python3 sources/main_counter.py
+```
+
 ## Téléchargement de vidéo
 
 Utiliser `yt-dlp`: https://github.com/yt-dlp
@@ -34,35 +70,3 @@ Utiliser ffmpeg:
 ```
  ffmpeg -i .\brutes\FAC.MOV -an -ss 00:00:12 -to 00:00:37 -vf scale=640:-1 FAC_360p.webm
 ```
-
-## Plan
-
-Plan de développement du prototype
-
-### v1
-
-* Système hors connexion (connexion perdu ou totalement)
-
-* Contrôle du raspberry pi (marche / arrêt)
-
-### v0
-
-* Détection des personnes `model.predict()`
-
-  * Configuration du modèle (CPU, classe des personnes, FPS)
-  * Choix du format du modèle NCNN
-
-* Traçage des personnes `model.track()`
-
-* Comptage des personnes
-
-* Serveur HTTP pour permettre de voir les métriques de comptage
-
-* Client pour envoyer les métriques vers une base de données
-
-* Faire fonctionner le projet dans un conteneur docker
-
-* Portage du projet vers un Raspberry PI
-
-  * Connectivité au réseau internet
-  * Régler les performances (FPS, résolution, taille du modèle utilisé)
