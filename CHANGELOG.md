@@ -12,7 +12,7 @@ Plan de développement du prototype
 
 ### 0.1.0 (Prototype) En cours
 
-* Démarrage hors connexion
+* Démarrage hors connexion lorsque le conteneur se crée
 
 * Format du modèle alternatif NCNN
 

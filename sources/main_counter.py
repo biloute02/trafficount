@@ -34,9 +34,9 @@ async def main() -> None:
     web = Web(counter)
 
     await asyncio.gather(
+        web.start_web(), # Start the website firt to have an interactive interface
         pgclient.start_pgclient(),
         counter.start_counter(),
-        web.start_web(),
     )
 
 

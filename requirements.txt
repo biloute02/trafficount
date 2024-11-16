@@ -5,6 +5,8 @@ ultralytics
 
 # Web server
 aiohttp
+aiohttp_jinja2
+jinja2
 
 # Database
 supabase

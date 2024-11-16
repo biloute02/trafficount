@@ -6,9 +6,7 @@ import logging
 from ultralytics import YOLO # type: ignore
 from ultralytics.engine.results import Results # type: ignore
 
-
-from people_counter.pgclient import PGClient
-
+from .pgclient import PGClient
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
