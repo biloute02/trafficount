@@ -1,0 +1,21 @@
+{
+    "device": {
+        "device_id": "",
+        "location_id": "",
+        "camera_index": "0",
+        "camera_resolution": ""
+    },
+    "database": {
+        "url": "",
+        "key": "",
+        "table": "",
+        "buffer_size": "",
+        "insert_delay": ""
+    },
+    "counter": {
+        "model_name": "yolo11n.pt",
+        "confidence": "",
+        "image_size": "",
+        "delay": "1"
+    }
+}

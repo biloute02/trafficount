@@ -62,6 +62,11 @@ class Counter:
         """
         Open the camera
         """
+        # TODO: Set the camera resolution in this order
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        # success, frame = cap.read()
+        # cap.release()
         camera_index = 0
         self.cap = cv2.VideoCapture(camera_index)
         if not self.cap.isOpened():
@@ -93,11 +98,12 @@ class Counter:
                 break
             else:
                 # Run YOLO11 tracking on the frame, persisting tracks between frames
+                # TODO: Set imgsz and confidence
                 results = self.model.track(
                     frame,
                     persist=True, # Do tracking by comparing with the result of the last frame
                     classes=[0], # Detect only persons
-                    verbose=False, # Suppress inference messages
+                    verbose=True, # Suppress inference messages
                 )
 
                 # There is only one result because it is tracking
