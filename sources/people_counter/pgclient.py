@@ -67,8 +67,8 @@ class PGClient:
             self.row_buffer.clear()
             logger.info(f"Buffer inserted to {self.table}")
             return True
-        except Exception:
-            logger.exception("Failed to insert the buffer to the database")
+        except Exception as e:
+            logger.error(f"Failed to insert the buffer to the database: {e}")
             return False
 
     def init_pgclient(self) -> bool:
@@ -87,7 +87,7 @@ class PGClient:
             return True
 
         except Exception:
-            logger.exception("PostgreSQL client not initiated")
+            logger.exception(f"PostgreSQL client not initiated")
             return False
 
     async def start_pgclient(self) -> None:

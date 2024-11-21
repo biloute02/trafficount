@@ -110,6 +110,12 @@ class Counter:
                 # Save it in the global last_result for the web server
                 self.last_result = results[0]
 
+                # Visualize the results on the frame
+                self.last_capture = results[0].plot()
+
+                # Display the annotated frame
+                #cv2.imshow("YOLO11 Tracking", annotated_frame)
+
                 # Get the greatest_id since the begin of the simulation
                 # boxes.id is None if nothing is detected
                 # BEWARE!: boxes.id has no boolean value
@@ -125,11 +131,6 @@ class Counter:
 
                 # Export the results to the database
                 self.pgclient.insert_row(self.people_count)
-
-                # Visualize the results on the frame
-                #annotated_frame = results[0].plot()
-                # Display the annotated frame
-                #cv2.imshow("YOLO11 Tracking", annotated_frame)
 
                 # Wait 1 millisecond. Break the loop if 'q' is pressed
                 # TODO: Change the exist method for production

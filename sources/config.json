@@ -2,8 +2,8 @@
     "device": {
         "device_id": "",
         "location_id": "",
-        "camera_index": "0",
-        "camera_resolution": ""
+        "resolution_id": "",
+        "camera_index": "0"
     },
     "database": {
         "url": "",
@@ -17,5 +17,8 @@
         "confidence": "",
         "image_size": "",
         "delay": "1"
+    },
+    "web": {
+        "update_interval": "1"
     }
 }

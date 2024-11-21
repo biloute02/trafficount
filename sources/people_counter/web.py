@@ -1,9 +1,11 @@
 from pathlib import Path
 from aiohttp import web
 import aiohttp_jinja2
+import cv2
 import jinja2
 
 from .counter import Counter
+from .pgclient import PGClient
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,8 +14,9 @@ logger.setLevel(logging.DEBUG)
 
 class Web:
 
-    def __init__(self, counter: Counter) -> None:
+    def __init__(self, counter: Counter, pgclient: PGClient) -> None:
         self.counter = counter
+        self.pgclient = pgclient
 
     async def handle_test(self, request) -> web.Response:
         """
@@ -39,6 +42,28 @@ class Web:
             'index.html', request, context)
         return response
 
+    async def handle_live(self, request) -> web.Response:
+        """
+        """
+        context = {
+            'update_interval': 1,
+            'people_count': self.counter.people_count,
+            'people_increment': self.counter.greatest_id,
+        }
+        response = await aiohttp_jinja2.render_template_async(
+            'live.html', request, context)
+        return response
+
+    async def handle_last_frame(self, request) -> web.Response:
+        """
+        """
+        # encoding speed sort (timeit): bmp, jpg, png
+        # 0.012, 0.497, 1.2771 secondes/(100xframes)
+        # encoding size  sort: jpg, png, bmp
+        # 50784, 296532, 921654 bytes
+        _, image = cv2.imencode(".jpg", self.counter.last_capture)
+        return web.Response(body=image.tobytes(), content_type="image/jpg")
+
     async def handle_root(self, request) -> web.Response:
         """
         """
@@ -56,6 +81,8 @@ class Web:
             web.get('/results', self.handle_track_results),
             web.get('/', self.handle_root),
             web.get('/ninja', self.handle_root_ninja),
+            web.get('/last_frame', self.handle_last_frame),
+            web.get('/live', self.handle_live),
         ])
 
         # Search the templates directory in the same parent directory than this module
