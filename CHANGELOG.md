@@ -1,31 +1,43 @@
 Plan de développement du prototype
 
-### 0.2.0 (?)
+### 0.3.0 (Mise à jour voiture)
 
 * Détection des voitures ?
 
-* Tracking effectif
-
-  * Configuration du tracker
-
-* Sens de détection ?
-
-### 0.1.0 (Prototype) En cours
-
-* Démarrage hors connexion lorsque le conteneur se crée
-
 * Format du modèle alternatif NCNN
 
-* Interface web de contrôle
+* Démarrage hors connexion lorsque le conteneur se crée pour la première fois
 
-  * Marche / arrêt
-  * Régler les paramètres
+### 0.2.0 (Mise à jour suivi) en cours
+
+* Activer le suivi grâce au tracker
+
+* Interface web de contrôle suite
+
+  * Régler tous les paramètres
     * du dispositif (id de l’appareil, lieu)
     * du modèle (FPS, résolution de traitement, format du modèles)
     * du postgres (table, délai, URL, clé, taille du buffer)
     * du web (taux de rafraichissement)
-  * Visualiser les résultas live (image annotée, compteur, temps d’inférence)
+    * du suivi (ligne de franchissement)
   * Voir les erreurs
+  * Marche / arrêt
+
+* Utiliser la base de données multi tables avec id du dispositif, id du lieu et id de résolution
+
+* Fonctionner à la résolution maximale pour la caméra (opencv et inférence)
+
+* Fichier de configuration pour la persistence lors du redémarrage du conteneur
+  à la place des variables d’environnement
+
+### 0.1.0 (Prototype)
+
+* Interface web de contrôle
+
+  * Ajout d’une template
+  * Modifier quelques paramètres du client BDD et du counter sans vérifications
+  * Voir l’état du client BDD et du counter
+  * Visualiser les résultas live (image annotée, compteur, temps d’inférence)
 
 ### 0.0.1 (Avant prototype) OK
 

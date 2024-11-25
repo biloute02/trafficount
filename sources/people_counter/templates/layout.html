@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Trafficount device configuration</title>
-  </head>
-  <body>
-    <h1>Trafficount device configuration</h1>
-    {%block body%}{%endblock%}
-  </body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Trafficount Remote Control</title>
+    </head>
+    <body>
+        <h1>Trafficount Remote Control</h1>
+        <nav class="menu">
+            <ul>
+              <li><a href="./">Home</a></li>
+              <li><a href="./results">Results</a></li>
+              <li><a href="./counter">Counter</a></li><!---->
+              <li><a href="./database">Database</a></li>
+              <li><a href="./live">Live</a></li>
+            </ul>
+          </nav>
+        {% block body %}{% endblock %}
+    </body>
 </html>

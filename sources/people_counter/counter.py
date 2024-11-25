@@ -37,6 +37,7 @@ class Counter:
         self.last_result: Results
         self.people_count: int = 0
         self.greatest_id: int = 0
+        self.remaining_time: float = 0
 
         # Debugging
         self.last_exception: Exception
@@ -103,7 +104,8 @@ class Counter:
                     frame,
                     persist=True, # Do tracking by comparing with the result of the last frame
                     classes=[0], # Detect only persons
-                    verbose=True, # Suppress inference messages
+                    conf=self.confidence, # Confidence threshold
+                    verbose=False, # Suppress inference messages
                 )
 
                 # There is only one result because it is tracking
@@ -143,15 +145,15 @@ class Counter:
                 # Calculate how much time we must sleep
                 # TODO: Use absolute times and not relative times?
                 current_time = time.time()
-                remaining_time = (last_time + self.delay) - current_time
+                self.remaining_time = (last_time + self.delay) - current_time
 
                 # Sleep until the next image inference depending of how much time we have
-                if remaining_time > 0:
-                    await asyncio.sleep(remaining_time)
+                if self.remaining_time > 0:
+                    await asyncio.sleep(self.remaining_time)
                     # The time now is last_time + delay
                     last_time += self.delay
                 else:
-                    logger.warning(f"do_tracking: Image processing is lagging behind of {remaining_time} second")
+                    logger.warning(f"do_tracking: Image processing is lagging behind of {self.remaining_time} second")
                     # As we are lagging behind (more than delay), last_time is now current time
                     last_time = current_time
 

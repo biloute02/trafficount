@@ -14,26 +14,34 @@ class PGClient:
 
     def __init__(
         self,
-        url: str,
-        key: str,
-        table: str,
+        #url: str,
+        #key: str,
+        #table: str,
     ) -> None:
         # Identification credentials
-        self.url = url
-        self.key = key
+        self.url = ""
+        self.key = ""
 
         # Postgrest client
         self.postgrest_client: Optional[AsyncPostgrestClient] = None
 
         # Table to insert values
-        self.table: str = table
+        self.table: str = ""
+
+        # Identification
+        self.device_id: int = 0
+        self.location_id: int = 0
+        self.resolution_id: int = 0
 
         # Buffer of rows
         self.row_buffer_size: int = 3600
         self.row_buffer: deque[dict] = deque([], self.row_buffer_size)
 
         # Interval for inserting to the database
-        self.insert_delay: int = 60
+        # What is the good default value for insertion delay?
+        self.insertion_delay: int = 10
+        self.error_delay: int = 60
+
 
     def insert_row(
         self,
@@ -48,6 +56,13 @@ class PGClient:
             "nombre_personnes": people_count,
             "resolution_image": "aucune"
         }
+        # row = {
+        #     "nombre_personnes": people_count,
+        #     "temps": str(datetime.now()),
+        #     # " id_lieu": self.location_id,
+        #     # "id_appareil": self.device_id,
+        #     # "id_resolution": self.resolution_id,
+        # }
         self.row_buffer.append(row)
         return True
 
@@ -58,6 +73,12 @@ class PGClient:
         # TODO
         assert(self.postgrest_client is not None)
 
+        # TODO: No error if table is the empty list
+        # Buffer inserted to
+        if not self.table:
+            logger.error(f"Table is empty")
+            return False
+
         try:
             _ = (
                 await self.postgrest_client.table(self.table)
@@ -65,7 +86,8 @@ class PGClient:
                 .execute()
             )
             self.row_buffer.clear()
-            logger.info(f"Buffer inserted to {self.table}")
+            # TODO: Too verbose. Check length of buffer or set a variable to the result of insertion
+            # logger.info(f"Buffer inserted to {self.table}")
             return True
         except Exception as e:
             logger.error(f"Failed to insert the buffer to the database: {e}")
@@ -106,10 +128,9 @@ class PGClient:
                 continue
 
             # Wait until insert buffer delay has elapsed
-            await asyncio.sleep(self.insert_delay)
+            await asyncio.sleep(self.insertion_delay)
 
             # Insert the buffer to the databse
             if not await self.insert_buffer():
-                failed_sleep_delay = 60
-                logger.info(f"{failed_sleep_delay} minutes sleep before retrying insertion")
-                await asyncio.sleep(failed_sleep_delay)
+                logger.info(f"{self.error_delay} minutes sleep before retrying insertion")
+                await asyncio.sleep(self.error_delay)

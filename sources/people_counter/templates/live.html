@@ -1,18 +1,4 @@
-{% extends "layout.html" %}
-{% block body %}
-    <meta http-equiv="refresh" content="{{ update_interval }}" >
-    <img
-      src="./last_frame"
-      alt="Camera live image"
-    />
-    <table>
-      <tr>
-        <td>people_count</td>
-        <td>{{ people_count }}</td>
-      </tr>
-      <tr>
-        <td>people_increment</td>
-        <td>{{ people_increment }}</td>
-      </tr>
-    </table>
+{% extends "results.html" %}
+{% block live %}
+<meta http-equiv="refresh" content="{{ update_interval }}">
 {% endblock %}

@@ -29,7 +29,13 @@ async def main() -> None:
     logger.info(f"SUPABASE_KEY=x")
     logger.info(f"SUPABASE_TABLE={table}")
 
-    pgclient = PGClient(url, key, table)
+    #pgclient = PGClient(url, key, table)
+    pgclient = PGClient()
+    # TODO: Temporary until the configuration file
+    pgclient.url = url
+    pgclient.key = key
+    pgclient.table = table
+
     counter = Counter(pgclient)
     web = Web(counter, pgclient)
 

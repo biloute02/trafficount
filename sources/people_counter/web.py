@@ -18,43 +18,16 @@ class Web:
         self.counter = counter
         self.pgclient = pgclient
 
-    async def handle_test(self, request) -> web.Response:
-        """
-        """
-        name = request.match_info.get('name', "Anonymous")
-        text = "Hello, " + name
-        return web.Response(text=text)
+        self.update_interval = 1
+        self.config_file = "trafficount.conf" # json config
 
-    async def handle_track_results(self, request) -> web.Response:
+    async def handle_boxes(self, request: web.BaseRequest) -> web.Response:
         """
         """
         text = str(self.counter.last_result.boxes)
         return web.Response(text=text)
 
-    async def handle_root_ninja(self, request) -> web.Response:
-        """
-        """
-        context = {
-            'people_count': self.counter.people_count,
-            'people_increment': self.counter.greatest_id,
-        }
-        response = await aiohttp_jinja2.render_template_async(
-            'index.html', request, context)
-        return response
-
-    async def handle_live(self, request) -> web.Response:
-        """
-        """
-        context = {
-            'update_interval': 1,
-            'people_count': self.counter.people_count,
-            'people_increment': self.counter.greatest_id,
-        }
-        response = await aiohttp_jinja2.render_template_async(
-            'live.html', request, context)
-        return response
-
-    async def handle_last_frame(self, request) -> web.Response:
+    async def handle_last_frame(self, request: web.BaseRequest) -> web.Response:
         """
         """
         # encoding speed sort (timeit): bmp, jpg, png
@@ -64,25 +37,160 @@ class Web:
         _, image = cv2.imencode(".jpg", self.counter.last_capture)
         return web.Response(body=image.tobytes(), content_type="image/jpg")
 
-    async def handle_root(self, request) -> web.Response:
+    async def handle_index(self, request: web.BaseRequest) -> web.Response:
         """
         """
-        text =  f"people_count     = {self.counter.people_count}\n"
-        text += f"people_increment = {self.counter.greatest_id}"
-        return web.Response(text=text)
+        context = {
+            'model_state': "DOWN" if self.counter.model is None else "UP",
+            'camera_state': "DOWN" if self.counter.cap is None else "UP",
+            'postgrest_client_state': "DOWN" if self.pgclient.postgrest_client is None else "UP",
+        }
+        response = await aiohttp_jinja2.render_template_async(
+            'index.html', request, context)
+        return response
+
+    async def handle_results(self, request: web.BaseRequest) -> web.Response:
+        """
+        """
+        context = {
+            'people_count': self.counter.people_count,
+            'people_increment': self.counter.greatest_id,
+            'remaining_time': self.counter.remaining_time,
+            'buffer_length': len(self.pgclient.row_buffer),
+            # 'boxes': self.counter.last_result.boxes,
+        }
+        response = await aiohttp_jinja2.render_template_async(
+            'results.html', request, context)
+        return response
+
+    async def handle_results_live(self, request: web.BaseRequest) -> web.Response:
+        """
+        """
+        context = {
+            'update_interval': self.update_interval,
+            'people_count': self.counter.people_count,
+            'people_increment': self.counter.greatest_id,
+            'remaining_time': self.counter.remaining_time,
+            'buffer_length': len(self.pgclient.row_buffer),
+        }
+        response = await aiohttp_jinja2.render_template_async(
+            'live.html', request, context)
+        return response
+
+    async def handle_configure_database(self, request: web.BaseRequest) -> web.Response:
+        """
+        """
+        # TODO: Firefox resend the POST request even if the form is empty
+        # TODO: show database connection error
+        error: str
+
+        data = await request.post()
+        if data:
+            # TODO: Use setters in pgclient to automatically call functions
+            # Set fields
+            if data['url']:
+                self.pgclient.url = data['url']
+                self.pgclient.init_pgclient()
+            if data['key']:
+                self.pgclient.key = data['key']
+                self.pgclient.init_pgclient()
+            if data['table']:
+                self.pgclient.table = data['table']
+            # TODO: KeyError: 'device_id' if key not in the form
+            # if data['device_id']:
+            #     try:
+            #         self.pgclient.device_id = int(data['device_id'])
+            #     except:
+            #         pass
+            # if data['location_id']:
+            #     try:
+            #         self.pgclient.location_id = int(data['location_id'])
+            #     except:
+            #         pass
+            # if data['resolution_id']:
+            #     try:
+            #         self.pgclient.resolution_id = int(data['resolution_id'])
+            #     except:
+            #         pass
+            if data['insertion_delay']:
+                try:
+                    self.pgclient.insertion_delay = int(data['insertion_delay'])
+                except:
+                    pass
+            if data['error_delay']:
+                try:
+                    self.pgclient.error_delay = int(data['error_delay'])
+                except:
+                    pass
+
+        context = {
+            'url': self.pgclient.url,
+            'key': "x" if self.pgclient.key else "",
+            'table': self.pgclient.table,
+            'device_id': self.pgclient.device_id,
+            'location_id': self.pgclient.location_id,
+            'resolution_id': self.pgclient.resolution_id,
+            'insertion_delay': self.pgclient.insertion_delay,
+            'error_delay': self.pgclient.error_delay,
+        }
+
+        response = await aiohttp_jinja2.render_template_async(
+            'database.html', request, context)
+        return response
+
+    async def handle_configure_counter(self, request: web.BaseRequest) -> web.Response:
+        """
+        """
+        # TODO: show database connection error
+        error: str
+
+        data = await request.post()
+        if data:
+            # TODO: Use setters in pgclient to automatically call functions
+            # Set fields
+            if data['delay']:
+                try:
+                    self.counter.delay = float(data['delay'])
+                except:
+                    pass
+            if data['confidence']:
+                try:
+                    self.counter.confidence = float(data['confidence'])
+                except:
+                    pass
+
+        context = {
+            'delay': self.counter.delay,
+            'confidence': self.counter.confidence,
+        }
+
+        response = await aiohttp_jinja2.render_template_async(
+            'counter.html', request, context)
+        return response
 
     async def start_web(self):
         app = web.Application()
 
         # Add the routes
         app.add_routes([
-            web.get('/test/', self.handle_test),
-            web.get('/test/{name}', self.handle_test),
-            web.get('/results', self.handle_track_results),
-            web.get('/', self.handle_root),
-            web.get('/ninja', self.handle_root_ninja),
+            # Non templated
+            web.get('/boxes', self.handle_boxes),
             web.get('/last_frame', self.handle_last_frame),
-            web.get('/live', self.handle_live),
+
+            # Templated
+            web.get("/", self.handle_index),
+
+            # TODO: One handle function with ?live=1 and live set in header.
+            web.get('/results', self.handle_results),
+            web.get('/live', self.handle_results_live),
+
+            # Database form
+            web.get('/database', self.handle_configure_database),
+            web.post('/database', self.handle_configure_database),
+
+            # Counter form
+            web.get('/counter', self.handle_configure_counter),
+            web.post('/counter', self.handle_configure_counter),
         ])
 
         # Search the templates directory in the same parent directory than this module

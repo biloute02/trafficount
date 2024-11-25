@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+<table>
+    <tr>
+        <td>people_count</td>
+        <td>{{ people_count }}</td>
+    </tr>
+    <tr>
+        <td>people_increment</td>
+        <td>{{ people_increment }}</td>
+    </tr>
+    <tr>
+        <td>remaining_time</td>
+        <td>{{ remaining_time }}</td>
+    </tr>
+    <tr>
+        <td>buffer_length</td>
+        <td>{{ buffer_length }}</td>
+    </tr>
+    <!--
+    <tr>
+        <td>boxes</td>
+        <td><pre>{{ boxes }}</pre></td>
+    </tr>
+    -->
+</table>
+<hr>
+<img src="./last_frame" alt="Camera live image"/>
+{% block live %}{% endblock %}
+{% endblock %}

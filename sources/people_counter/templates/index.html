@@ -1,4 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
-    <p>Its the index</p>
+<table>
+    <tr>
+        <td>camera_state</td>
+        <td>{{ camera_state }}</td>
+    </tr>
+    <tr>
+        <td>model_state</td>
+        <td>{{ model_state }}</td>
+    </tr>
+    <tr>
+        <td>postgrest_client_state</td>
+        <td>{{ postgrest_client_state }}</td>
+    </tr>
+</table>
 {% endblock %}
