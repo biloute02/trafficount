@@ -70,6 +70,8 @@ class Counter:
         # cap.release()
         camera_index = 0
         self.cap = cv2.VideoCapture(camera_index)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         if not self.cap.isOpened():
             logger.error(f"Camera index {camera_index} not opened")
             return False
@@ -106,6 +108,8 @@ class Counter:
                     classes=[0], # Detect only persons
                     conf=self.confidence, # Confidence threshold
                     verbose=False, # Suppress inference messages
+                    # INFO: hardcoded imgsz for the presentation
+                    imgsz=(1280,736),
                 )
 
                 # There is only one result because it is tracking

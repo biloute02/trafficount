@@ -4,9 +4,9 @@ Build the images:
 
 ```
 docker build -f .\docker\Dockerfile-cpu -t {registry}/trafficount:latest-cpu .
-docker build -f .\docker\Dockerfile-cpu -t {registry}/trafficount:0.0.1-cpu .
-docker build -f .\docker\Dockerfile-arm -t {registry}/trafficount:latest-arm .
-docker build -f .\docker\Dockerfile-arm -t {registry}/trafficount:0.0.1-arm .
+docker build -f .\docker\Dockerfile-cpu -t {registry}/trafficount:{version}-cpu .
+docker build -f .\docker\Dockerfile-arm -t {registry}/trafficount:latest-arm --platform linux/arm64 .
+docker build -f .\docker\Dockerfile-arm -t {registry}/trafficount:{version}-arm --platform linux/arm64 .
 ```
 
 Push the images:
