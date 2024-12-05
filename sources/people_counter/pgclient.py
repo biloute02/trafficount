@@ -12,18 +12,19 @@ logger.setLevel(logging.DEBUG)
 
 class PGClient:
 
-    def __init__(
-        self,
-        #url: str,
-        #key: str,
-        #table: str,
-    ) -> None:
+    def __init__(self) -> None:
         # Identification credentials
         self.url = ""
         self.key = ""
 
         # Postgrest client
         self.postgrest_client: Optional[AsyncPostgrestClient] = None
+        self.postgrest_client_exception: Exception = Exception()
+
+        # Connection test
+        # self.connection_status: bool = False
+        # self.connection_message: str = "Uninitialized"
+        # self.connection_last_date: datetime = datetime.date()
 
         # Table to insert values
         self.table: str = ""
@@ -93,11 +94,33 @@ class PGClient:
             logger.error(f"Failed to insert the buffer to the database: {e}")
             return False
 
+    # async def connection_test(self) -> bool:
+    #     """
+    #     Connection test to the database.
+    #     :return: True if the client can query the database, else False
+    #     """
+    #     return True
+
     def init_pgclient(self) -> bool:
         """
-        Create a connection. Always succeed
+        Create a new pg client. pg client and connection test is different,
+        because the database can be unaccessible the moment the client is created.
+        :return: True if the client is created, else False
         """
+        if not self.url:
+            self.postgrest_client = None
+            logger.info("Missing the url")
+            return False
+
+        if not self.key:
+            self.postgrest_client = None
+            logger.info("Missing the key")
+            return False
+
         try:
+            logger.info(f"New pgclient with url={self.url} and key={self.key[0:10]}...")
+
+            # Create the pgclient (no connection tests)
             supabase_client: supabase.Client = supabase.create_client(self.url, self.key)
             self.postgrest_client = supabase.AsyncClient._init_postgrest_client(
                 rest_url=supabase_client.rest_url,
@@ -105,10 +128,12 @@ class PGClient:
                 schema=supabase_client.options.schema,
                 verify=False
             )
-            logger.info("PostgreSQL client initiated:")
+
+            logger.info("PostgreSQL client initiated")
             return True
 
-        except Exception:
+        except Exception as e:
+            self.postgrest_client_exception = e
             logger.exception(f"PostgreSQL client not initiated")
             return False
 

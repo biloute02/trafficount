@@ -90,10 +90,11 @@ class Web:
             # Set fields
             if data['url']:
                 self.pgclient.url = data['url']
-                self.pgclient.init_pgclient()
             if data['key']:
                 self.pgclient.key = data['key']
+            if data['url'] or data['key']:
                 self.pgclient.init_pgclient()
+
             if data['table']:
                 self.pgclient.table = data['table']
             # TODO: KeyError: 'device_id' if key not in the form

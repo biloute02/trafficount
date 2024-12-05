@@ -40,7 +40,7 @@ class Counter:
         self.remaining_time: float = 0
 
         # Debugging
-        self.last_exception: Exception
+        self.last_exception: Exception = Exception()
 
     def init_model(self) -> bool:
         """
