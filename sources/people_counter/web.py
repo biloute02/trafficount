@@ -39,11 +39,21 @@ class Web:
 
     async def handle_index(self, request: web.BaseRequest) -> web.Response:
         """
+        Handle the index page and toggle mode if requested
         """
+
+        data = await request.post()
+        if data:
+            # Check if the toggle_mode field is in the POST data
+            if "toggle_mode" in data:
+                # Toggle the boolean mode
+                self.counter.mode = not self.counter.mode       
+
         context = {
             'model_state': "DOWN" if self.counter.model is None else "UP",
             'camera_state': "DOWN" if self.counter.cap is None else "UP",
             'postgrest_client_state': "DOWN" if self.pgclient.postgrest_client is None else "UP",
+            'mode': "PRODUCTION" if self.counter.mode else "CALIBRATION",  # Show Status using the boolean "On"/"Off"
         }
         response = await aiohttp_jinja2.render_template_async(
             'index.html', request, context)
@@ -180,6 +190,7 @@ class Web:
 
             # Templated
             web.get("/", self.handle_index),
+            web.post("/", self.handle_index),
 
             # TODO: One handle function with ?live=1 and live set in header.
             web.get('/results', self.handle_results),

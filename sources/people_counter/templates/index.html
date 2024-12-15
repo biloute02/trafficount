@@ -13,5 +13,18 @@
         <td>postgrest_client_state</td>
         <td>{{ postgrest_client_state }}</td>
     </tr>
+    <tr><td><br></td></tr>
+    <tr>
+        <td>counter_mode</td>
+        <td>{{ mode }}</td>
+    </tr>
+    <tr>
+        <td>
+            <form method="post" action="/">
+                <button type="submit" name="toggle_mode">Toggle Mode</button>
+            </form>
+        </td>
+
+    </tr>
 </table>
 {% endblock %}
