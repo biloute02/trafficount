@@ -4,6 +4,7 @@ Plan de développement du prototype
 
 * Base de données multi tables
 * Activer le suivi
+* Ajout d'un bouton on / off (mode production ou calibrage)
 
 ### 0.1.1 
 

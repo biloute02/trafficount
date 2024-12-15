@@ -39,8 +39,12 @@ class Counter:
         self.greatest_id: int = 0
         self.remaining_time: float = 0
 
+        # Mode d'envoi vers la BDD - True = Oui / False = Non
+        self.mode:bool = False # Variable d'initialisation
+
         # Debugging
         self.last_exception: Exception = Exception()
+
 
     def init_model(self) -> bool:
         """
@@ -138,8 +142,9 @@ class Counter:
                         max(results[0].boxes.id.int().tolist())
                     )
 
-                # Export the results to the database
-                self.pgclient.insert_row(self.people_count)
+                if self.mode: # Check if the mode is set to send data to the database or not
+                    # Export the results to the database
+                    self.pgclient.insert_row(self.people_count)
 
                 # Sleep at least one time between for the web server.
                 await asyncio.sleep(0.001)

@@ -5,8 +5,6 @@
 
 * Utiliser la base de données multi tables avec id du dispositif, id du lieu et id de résolution (Damien)
 
-* Bouton marche / arrêt (comptage ou BDD ?)
-
 ## Medium priority
 
 * Format du modèle alternatif NCNN
