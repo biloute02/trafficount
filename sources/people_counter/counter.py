@@ -74,6 +74,8 @@ class Counter:
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         if not self.cap.isOpened():
             logger.error(f"Camera index {camera_index} not opened")
+            # Don't forget to reset the capture to None
+            self.cap = None
             return False
 
         logger.info(f"Camera index {camera_index} opened")
@@ -90,6 +92,7 @@ class Counter:
         last_time: float = time.time()
 
         # Loop through the video frames
+        # TODO: Add a condition to stop looping
         while self.cap.isOpened():
 
             # Read a frame from the video
@@ -138,11 +141,6 @@ class Counter:
                 # Export the results to the database
                 self.pgclient.insert_row(self.people_count)
 
-                # Wait 1 millisecond. Break the loop if 'q' is pressed
-                # TODO: Change the exist method for production
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
-
                 # Sleep at least one time between for the web server.
                 await asyncio.sleep(0.001)
 
@@ -170,7 +168,6 @@ class Counter:
 
     async def start_counter(self):
         """
-        :param delay: delay between to inference in second
         """
         # Init the model at startup
         self.init_model()
