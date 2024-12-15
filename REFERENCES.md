@@ -1,5 +1,9 @@
 List of projects / guides / technologies / softwares used in this projects
 
+## OpenCV
+
+ * Capture video (set resolution) https://docs.opencv.org/3.4/dd/d43/tutorial_py_video_display.html
+
 ## YOLO
 
 * Detection modes https://docs.ultralytics.com/modes/
