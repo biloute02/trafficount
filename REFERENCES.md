@@ -4,6 +4,10 @@ List of projects / guides / technologies / softwares used in this projects
 
  * Capture video (set resolution) https://docs.opencv.org/3.4/dd/d43/tutorial_py_video_display.html
 
+## PostgREST and Supabase
+
+ * Counting https://docs.postgrest.org/en/v12/references/api/pagination_count.html#counting
+
 ## YOLO
 
 * Detection modes https://docs.ultralytics.com/modes/
