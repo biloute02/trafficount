@@ -3,6 +3,7 @@ import time
 from typing import Optional
 import cv2
 import logging
+import numpy as np
 from ultralytics import YOLO # type: ignore
 from ultralytics.engine.results import Results # type: ignore
 
@@ -34,7 +35,10 @@ class Counter:
         self.model: Optional[YOLO] = None
 
         # Results
+        # TODO: Init values ?
         self.last_result: Results
+        self.last_capture: np.ndarray
+
         self.people_count: int = 0
         self.greatest_id: int = 0
         self.remaining_time: float = 0
