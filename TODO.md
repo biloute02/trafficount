@@ -11,8 +11,6 @@
 
 ## Medium priority
 
-* Find a proper way to check if the database is online before trying insertion:
-  - Exclude connection errors from the insert_dection_buffer function
 
 * Format du modèle alternatif NCNN
 
@@ -31,9 +29,11 @@
 * Déterminer la résolution maximale de la caméra et l’utiliser pour le traitement
   - Par défaut, `opencv` utilise la résolution (480,640)
 
+* Insertion de l’appareil, du lieu ou de la résolution s’ils n’existent pas dans la base.
+
 ## Low priority
 
-* Add new location (latitude, longitude and name ) in the web interface :
+* Add new location (latitude, longitude and name ) in the web interface:
   - Use the location from the phone?
   - Enter fields manually
 
@@ -44,3 +44,18 @@
   - Formulaire pour *tous* les paramètres de la BDD (tables, délai, URL, clé, taille du buffer)
   - Changere le taux de rafraichissement du live
   - Voir *toutes* les erreurs (erreur chargement modèle, erreur chargement BDD, erreur chargement caméra)
+
+## Idées
+
+* Les pages web results et live devraient être les mêmes :
+  - La page live a un paramètre dans son header pour recharger la page automatiquement.
+
+* Tester la connection à la base séparément :
+  - Lors de l’initialisation du client postgrest init_pgclient()
+  - Différencier l’erreur d’insertion de l’erreur de connection
+
+* Créer des exceptions customisées pour avoir le même message d’information pour un type d’erreur. 
+  - Message à changer qu’à un seul endroits
+  - Exemple :
+    + NoIdFound() -> Pas d’id trouvé pour un appareil, un lieu ou une résolution
+    + NoConnection() -> Pas de connection à la base
