@@ -1,5 +1,44 @@
 {% extends "layout.html" %}
 {% block body %}
+<h2>Database insertion</h2>
+<table>
+    <p>Information about the last insertertion in the database:</p>
+    <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>device_id</td>
+        <td>{{ device_id }}</td>
+        <td>{{ device_exception }}</td> <!-- extra column with no header (<th></th>) -->
+    </tr>
+    <tr>
+        <td>location_id</td>
+        <td>{{ location_id }}</td>
+        <td>{{ location_exception }}</td>
+    </tr>
+    <tr>
+        <td>resolution_id</td>
+        <td>{{ resolution_id }}</td>
+        <td>{{ resolution_exception }}</td>
+    </tr>
+
+    <tr><td><br></td></tr> <!-- Line break -->
+    <tr>
+        <th>Result</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>insertion_date</td>
+        <td>TODO</td>
+    </tr>
+    <tr>
+        <td>insertion_count</td>
+        <td>TODO</td>
+    </tr>
+</table>
+
+<h2>Database configuration</h2>
 <form action="" method="post">
     <table>
         <tr>
@@ -10,44 +49,44 @@
         <tr>
             <td><label for="url">url</label></td>
             <td><label for="url">{{ url }}</label></td>
-            <td><input id="url" name="url" type="text" autofocus/></td>
+            <td><input id="url" name="url" type="url" autofocus/></td>
         </tr>
         <tr>
             <td><label for="key">key</label></td>
             <td><label for="key">{{ key }}</label></td>
-            <td><input id="key" name="key" type="text"/></td>
+            <td><input id="key" name="key" type="password"/></td>
         </tr>
-        <tr>
-            <td><label for="table">table</label></td>
-            <td><label for="table">{{ table }}</label></td>
-            <td><input id="table" name="table" type="text"/></td>
-        </tr>
-        <!--
-        <tr>
-            <td><label for="device_id">device_id</label></td>
-            <td><label for="device_id">{{ device_id }}</label></td>
-            <td><input id="device_id" name="device_id" type="text"/></td>
-        </tr>
-        <tr>
-            <td><label for="location_id">location_id</label></td>
-            <td><label for="location_id">{{ location_id }}</label></td>
-            <td><input id="location_id" name="location_id" type="text"/></td>
-        </tr>
-        <tr>
-            <td><label for="resolution_id">resolution_id</label></td>
-            <td><label for="resolution_id">{{ resolution_id }}</label></td>
-            <td><input id="resolution_id" name="resolution_id" type="text"/></td>
-        </tr>
-        -->
         <tr>
             <td><label for="insertion_delay">insertion_delay</label></td>
             <td><label for="insertion_delay">{{ insertion_delay }}</label></td>
-            <td><input id="insertion_delay" name="insertion_delay" type="text"/></td>
+            <td><input id="insertion_delay" name="insertion_delay" type="number"/></td>
         </tr>
         <tr>
             <td><label for="error_delay">error_delay</label></td>
             <td><label for="error_delay">{{ error_delay }}</label></td>
-            <td><input id="error_delay" name="error_delay" type="text"/></td>
+            <td><input id="error_delay" name="error_delay" type="number"/></td>
+        </tr>
+
+        <tr><td><br></td></tr> <!-- Line break -->
+        <tr>
+            <td><label for="device_name">device_name</label></td>
+            <td><label for="device_name">{{ device_name }}</label></td>
+            <td><input id="device_name" name="device_name" type="text"/></td>
+        </tr>
+        <tr>
+            <td><label for="location_name">location_name</label></td>
+            <td><label for="location_name">{{ location_name }}</label></td>
+            <td><input id="location_name" name="location_name" type="text"/></td>
+        </tr>
+        <tr>
+            <td><label for="resolution_width">resolution_width</label></td>
+            <td><label for="resolution_width">{{ resolution_width }}</label></td>
+            <td><input id="resolution_width" name="resolution_width" type="number"/></td>
+        </tr>
+        <tr>
+            <td><label for="resolution_height">resolution_height</label></td>
+            <td><label for="resolution_height">{{ resolution_height }}</label></td>
+            <td><input id="resolution_height" name="resolution_height" type="number"/></td>
         </tr>
         <tr>
             <td></td>
