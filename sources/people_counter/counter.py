@@ -164,7 +164,7 @@ class Counter:
                 )
 
             # Export the results to the database
-            self.pgclient.insert_row(self.people_count)
+            self.pgclient.insert_detection(self.people_count)
 
     def free_camera(self):
         # Release the video capture object and close the display window
