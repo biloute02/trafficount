@@ -43,6 +43,8 @@ class PGClient:
         self.insertion_delay: int = 10
         self.error_delay: int = 60
 
+        # Activate the insertion of the detections values to the Database
+        self.activate_insertion: bool = False
 
     def insert_row(
         self,
@@ -154,6 +156,10 @@ class PGClient:
 
             # Wait until insert buffer delay has elapsed
             await asyncio.sleep(self.insertion_delay)
+
+            # Check if insertion mode is ON
+            if not self.activate_insertion:
+                continue
 
             # Insert the buffer to the databse
             if not await self.insert_buffer():

@@ -44,7 +44,7 @@ class Counter:
         self.remaining_time: float = 0
 
         # Mode d'envoi vers la BDD - True = Oui / False = Non
-        self.mode:bool = False # Variable d'initialisation
+        self.activate_counting: bool = False # Tracking disable at startup
 
         # Debugging
         self.last_exception: Exception = Exception()
@@ -110,63 +110,45 @@ class Counter:
                 # Break the loop if the camera is disconnected
                 logger.error("Can't get next frame. Exit tracking...")
                 break
+
+            # Check if counting is activated
+            if not self.activate_counting:
+                continue
+
+            # Run YOLO11 tracking on the frame, persisting tracks between frames
+            # TODO: Set imgsz and confidence
+            results = self.model.track(
+                frame,
+                persist=True, # Do tracking by comparing with the result of the last frame
+                classes=[0], # Detect only persons
+                conf=self.confidence, # Confidence threshold
+                verbose=False, # Suppress inference messages
+                # INFO: hardcoded imgsz for the presentation
+                imgsz=(1280,736),
+            )
+
+            # There is only one result because it is tracking
+            # Save it in the global last_result for the web server
+            self.last_result = results[0]
+
+            # Visualize the results on the frame
+            self.last_capture = results[0].plot()
+
+            # Get the greatest_id since the begin of the simulation
+            # boxes.id is None if nothing is detected
+            # BEWARE!: boxes.id has no boolean value
+            # https://discuss.pytorch.org/t/boolean-value-of-tensor-with-more-than-one-value-is-ambiguous/151004/2
+            if results[0].boxes.id is None:
+                self.people_count = 0
             else:
-                # Run YOLO11 tracking on the frame, persisting tracks between frames
-                # TODO: Set imgsz and confidence
-                results = self.model.track(
-                    frame,
-                    persist=True, # Do tracking by comparing with the result of the last frame
-                    classes=[0], # Detect only persons
-                    conf=self.confidence, # Confidence threshold
-                    verbose=False, # Suppress inference messages
-                    # INFO: hardcoded imgsz for the presentation
-                    imgsz=(1280,736),
+                self.people_count = len(results[0].boxes.id)
+                self.greatest_id = max(
+                    self.greatest_id,
+                    max(results[0].boxes.id.int().tolist())
                 )
 
-                # There is only one result because it is tracking
-                # Save it in the global last_result for the web server
-                self.last_result = results[0]
-
-                # Visualize the results on the frame
-                self.last_capture = results[0].plot()
-
-                # Display the annotated frame
-                #cv2.imshow("YOLO11 Tracking", annotated_frame)
-
-                # Get the greatest_id since the begin of the simulation
-                # boxes.id is None if nothing is detected
-                # BEWARE!: boxes.id has no boolean value
-                # https://discuss.pytorch.org/t/boolean-value-of-tensor-with-more-than-one-value-is-ambiguous/151004/2
-                if results[0].boxes.id is None:
-                    self.people_count = 0
-                else:
-                    self.people_count = len(results[0].boxes.id)
-                    self.greatest_id = max(
-                        self.greatest_id,
-                        max(results[0].boxes.id.int().tolist())
-                    )
-
-                if self.mode: # Check if the mode is set to send data to the database or not
-                    # Export the results to the database
-                    self.pgclient.insert_row(self.people_count)
-
-                # Sleep at least one time between for the web server.
-                await asyncio.sleep(0.001)
-
-                # Calculate how much time we must sleep
-                # TODO: Use absolute times and not relative times?
-                current_time = time.time()
-                self.remaining_time = (last_time + self.delay) - current_time
-
-                # Sleep until the next image inference depending of how much time we have
-                if self.remaining_time > 0:
-                    await asyncio.sleep(self.remaining_time)
-                    # The time now is last_time + delay
-                    last_time += self.delay
-                else:
-                    logger.warning(f"do_tracking: Image processing is lagging behind of {self.remaining_time} second")
-                    # As we are lagging behind (more than delay), last_time is now current time
-                    last_time = current_time
+            # Export the results to the database
+            self.pgclient.insert_row(self.people_count)
 
     def free_camera(self):
         # Release the video capture object and close the display window
