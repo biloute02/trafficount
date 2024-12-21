@@ -41,7 +41,6 @@ docker-compose up
 ```ps
 $Env:SUPABASE_URL = "https://x.x.x.x:8443/"
 $Env:SUPABASE_KEY = "x"
-$ENV:SUPABASE_TABLE = "detections_personnes"
 ```
 
 Run:
