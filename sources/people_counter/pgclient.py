@@ -30,10 +30,10 @@ class PGClient:
         self.device_id: int = 0
         self.location_id: int = 0
         self.resolution_id: int = 0
+        # Buffer of detections
+        self.detection_buffer_size: int = 3600
+        self.detection_buffer: deque[Detection] = deque([], self.detection_buffer_size)
 
-        # Buffer of rows
-        self.row_buffer_size: int = 3600
-        self.row_buffer: deque[dict] = deque([], self.row_buffer_size)
 
         # Interval for inserting to the database
         # What is the good default value for insertion delay?
@@ -43,28 +43,12 @@ class PGClient:
         # Activate the insertion of the detections values to the Database
         self.activate_insertion: bool = False
 
-    def insert_row(
-        self,
-        people_count: int
-    ) -> bool:
+    def insert_detection(self, people_count: int) -> None:
         """
-        Insert a row to the buffer before being inserted to the database
+        Insert a detection to the buffer before being inserted to the database.
         """
-        row = {
-            "lieu": "Trafficount",
-            "timestamp": str(datetime.now()),
-            "nombre_personnes": people_count,
-            "resolution_image": "aucune"
-        }
-        # row = {
-        #     "nombre_personnes": people_count,
-        #     "temps": str(datetime.now()),
-        #     # " id_lieu": self.location_id,
-        #     # "id_appareil": self.device_id,
-        #     # "id_resolution": self.resolution_id,
-        # }
-        self.row_buffer.append(row)
-        return True
+        detection = Detection(people_count)
+        self.detection_buffer.append(detection)
 
     async def insert_buffer(self) -> bool:
         """
@@ -77,11 +61,22 @@ class PGClient:
 
         try:
             _ = (
-                await self.postgrest_client.table(self.table)
-                .insert(list(self.row_buffer))
+                await self.postgrest_client
+                .table(self.detection_buffer[0].table_name)
+                .insert([
+                    {
+                        "nombre_personnes": detection.people_count,
+                        "temps": detection.time,
+                        "id_lieu": self.location.id,
+                        "id_appareil": self.device.id,
+                        "id_resolution": self.resolution.id
+                    } for detection in self.detection_buffer
+                ])
                 .execute()
             )
-            self.row_buffer.clear()
+
+            # If it succeeded (no exception raised)
+            self.detection_buffer.clear()
             # TODO: Too verbose. Check length of buffer or set a variable to the result of insertion
             # logger.info(f"Buffer inserted to {self.table}")
             return True

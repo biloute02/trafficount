@@ -68,7 +68,7 @@ class Web:
             'people_count': self.counter.people_count,
             'people_increment': self.counter.greatest_id,
             'remaining_time': self.counter.remaining_time,
-            'buffer_length': len(self.pgclient.row_buffer),
+            'buffer_length': len(self.pgclient.detection_buffer),
             # 'boxes': self.counter.last_result.boxes,
         }
         response = await aiohttp_jinja2.render_template_async(
@@ -83,7 +83,7 @@ class Web:
             'people_count': self.counter.people_count,
             'people_increment': self.counter.greatest_id,
             'remaining_time': self.counter.remaining_time,
-            'buffer_length': len(self.pgclient.row_buffer),
+            'buffer_length': len(self.pgclient.detection_buffer),
         }
         response = await aiohttp_jinja2.render_template_async(
             'live.html', request, context)
