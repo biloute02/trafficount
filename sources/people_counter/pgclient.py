@@ -1,11 +1,17 @@
 from collections import deque
-from datetime import datetime
 from typing import Optional
 from postgrest import AsyncPostgrestClient
 import supabase
 import asyncio
-
 import logging
+
+
+from .tables.detection import Detection
+from .tables.device import Device
+from .tables.location import Location
+from .tables.resolution import Resolution
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -26,14 +32,14 @@ class PGClient:
         # self.connection_message: str = "Uninitialized"
         # self.connection_last_date: datetime = datetime.date()
 
-        # Identification
-        self.device_id: int = 0
-        self.location_id: int = 0
-        self.resolution_id: int = 0
         # Buffer of detections
         self.detection_buffer_size: int = 3600
         self.detection_buffer: deque[Detection] = deque([], self.detection_buffer_size)
 
+        # Foreign keys
+        self.device: Device = Device("Raspberry PI 5 Damien")
+        self.location: Location = Location("Prototype nomade")
+        self.resolution: Resolution = Resolution(1280, 720)
 
         # Interval for inserting to the database
         # What is the good default value for insertion delay?
@@ -43,6 +49,39 @@ class PGClient:
         # Activate the insertion of the detections values to the Database
         self.activate_insertion: bool = False
 
+    async def update_device(self, device_name: str) -> None:
+        """
+        Update the device and try to retrieve its id from the database.
+        """
+        # Create a new device
+        self.device = Device(device_name)
+
+        # Retrive its id
+        if self.postgrest_client is not None:
+            await self.device.retrieve_device_id(self.postgrest_client)
+
+    async def update_location(self, location_name: str) -> None:
+        """
+        Update the location and try to retrieve its id from the database.
+        """
+        # Create a new device
+        self.location = Location(location_name)
+
+        # Retrive its id
+        if self.postgrest_client is not None:
+            await self.location.retrieve_location_id(self.postgrest_client)
+
+    async def update_resolution(self, width: int, height: int) -> None:
+        """
+        Update the resolution and try to retrieve its id from the database.
+        """
+        # Create a new device
+        self.resolution = Resolution(width, height)
+
+        # Retrive its id
+        if self.postgrest_client is not None:
+            await self.resolution.retrieve_resolution_id(self.postgrest_client)
+
     def insert_detection(self, people_count: int) -> None:
         """
         Insert a detection to the buffer before being inserted to the database.
@@ -50,13 +89,32 @@ class PGClient:
         detection = Detection(people_count)
         self.detection_buffer.append(detection)
 
-    async def insert_buffer(self) -> bool:
+    async def insert_detection_buffer(self) -> bool:
         """
-        Insert the buffer to the database, then clear it
+        Insert the buffer to the database, then clear it if inserted
         """
-        # TODO
-        assert(self.postgrest_client is not None)
+        # Check if the buffer is non empty
+        if not self.detection_buffer:
+            logger.info(f"Empty buffer")
+            return False
 
+        # Check the postgrest client
+        if self.postgrest_client is None:
+            logger.info(f"No postgrest client")
+            return False
+
+        # TODO: Check if the postgrest client can access the database before retrieving the ID
+
+        if not await self.device.retrieve_device_id(self.postgrest_client):
+            logger.info(f"Missing the device id")
+            return False
+
+        if not await self.location.retrieve_location_id(self.postgrest_client):
+            logger.info(f"Missing the location id")
+            return False
+
+        if not await self.resolution.retrieve_resolution_id(self.postgrest_client):
+            logger.info(f"Missing the resolution id")
             return False
 
         try:
@@ -124,13 +182,14 @@ class PGClient:
 
         except Exception as e:
             self.postgrest_client_exception = e
-            logger.exception(f"PostgreSQL client not initiated")
+            logger.error(f"PostgreSQL client not initiated: {e}")
             return False
 
     async def start_pgclient(self) -> None:
         """
         Insert the buffer periodically to the database
         """
+        # TODO: Init the postgrest client after loading the url and key from the configuration file.
         # Init the Postgres Client
         self.init_pgclient()
 
@@ -150,6 +209,6 @@ class PGClient:
                 continue
 
             # Insert the buffer to the databse
-            if not await self.insert_buffer():
-                logger.info(f"{self.error_delay} minutes sleep before retrying insertion")
+            if not await self.insert_detection_buffer():
+                logger.info(f"{self.error_delay} seconds sleep before retrying insertion")
                 await asyncio.sleep(self.error_delay)
