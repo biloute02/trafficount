@@ -107,24 +107,19 @@ class Web:
             if data['url'] or data['key']:
                 self.pgclient.init_pgclient()
 
-            if data['table']:
-                self.pgclient.table = data['table']
-            # TODO: KeyError: 'device_id' if key not in the form
-            # if data['device_id']:
-            #     try:
-            #         self.pgclient.device_id = int(data['device_id'])
-            #     except:
-            #         pass
-            # if data['location_id']:
-            #     try:
-            #         self.pgclient.location_id = int(data['location_id'])
-            #     except:
-            #         pass
-            # if data['resolution_id']:
-            #     try:
-            #         self.pgclient.resolution_id = int(data['resolution_id'])
-            #     except:
-            #         pass
+            if data['device_name']:
+                await self.pgclient.update_device(data['device_name'])
+            if data['location_name']:
+                await self.pgclient.update_location(data['location_name'])
+            if data['resolution_width'] and data['resolution_height']:
+                try:
+                    await self.pgclient.update_resolution(
+                        int(data['resolution_width']),
+                        int(data['resolution_height'])
+                    )
+                except:
+                    pass
+
             if data['insertion_delay']:
                 try:
                     self.pgclient.insertion_delay = int(data['insertion_delay'])
@@ -139,12 +134,21 @@ class Web:
         context = {
             'url': self.pgclient.url,
             'key': "x" if self.pgclient.key else "",
-            'table': self.pgclient.table,
-            'device_id': self.pgclient.device_id,
-            'location_id': self.pgclient.location_id,
-            'resolution_id': self.pgclient.resolution_id,
             'insertion_delay': self.pgclient.insertion_delay,
             'error_delay': self.pgclient.error_delay,
+
+            'device_name': self.pgclient.device.name,
+            'location_name': self.pgclient.location.name,
+            'resolution_width': self.pgclient.resolution.width,
+            'resolution_height': self.pgclient.resolution.height,
+
+            'device_id': self.pgclient.device.id,
+            'location_id': self.pgclient.location.id,
+            'resolution_id': self.pgclient.resolution.id,
+
+            'device_exception': str(self.pgclient.device.last_exception),
+            'location_exception': str(self.pgclient.location.last_exception),
+            'resolution_exception': str(self.pgclient.resolution.last_exception),
         }
 
         response = await aiohttp_jinja2.render_template_async(
