@@ -25,6 +25,7 @@ class Counter:
         self.pgclient = pgclient
 
         # Parameters
+        # TODO: Add a minimum time for delay
         self.delay: float = delay
         self.confidence: float = confidence
 
@@ -97,15 +98,30 @@ class Counter:
             logger.error("Can't do tracking if the capture device or the model are None")
             return
 
-        last_time: float = time.time()
+        # Time of the last frame read
+        start_time: float = time.time() # Initialization to now
 
         # Loop through the video frames
         # TODO: Add a condition to stop looping
         while self.cap.isOpened():
 
+            # Sleep at least once for the other coroutines to execute.
+            await asyncio.sleep(0.001)
+
+            # Calculate the remaining_time:
+            # - Each loop should be executed in [delay] seconds.
+            # - If it lasts less than [delay], we sleep [remaning_time] seconds.
+            # - If it lasts more than [delay], we print a warning.
+            self.remaining_time = (start_time + self.delay) - time.time()
+            if self.remaining_time > 0:
+                await asyncio.sleep(self.remaining_time)
+            else:
+                logger.warning(f"Image processing is lagging behind of {self.remaining_time} second")
+
+            start_time = time.time()
+
             # Read a frame from the video
             success, frame = self.cap.read()
-
             if not success:
                 # Break the loop if the camera is disconnected
                 logger.error("Can't get next frame. Exit tracking...")
