@@ -1,30 +1,49 @@
 {% extends "layout.html" %}
 {% block body %}
+
+<h2>Status</h2>
+<p>
+    {% if camera_status and model_status and postgrest_client_status %}
+        {{ "OPERATIONAL" }}
+    {% else %}
+        {{ "NON-OPERATIONAL" }}
+    {% endif %}
+</p>
 <table>
     <tr>
-        <td>camera_state</td>
-        <td>{{ camera_state }}</td>
+        <td>camera_status</td>
+        <td>{{ camera_status }}</td>
     </tr>
     <tr>
-        <td>model_state</td>
-        <td>{{ model_state }}</td>
+        <td>model_status</td>
+        <td>{{ model_status }}</td>
     </tr>
     <tr>
-        <td>postgrest_client_state</td>
-        <td>{{ postgrest_client_state }}</td>
-    </tr>
-    <tr><td><br></td></tr>
-    <tr>
-        <td>counter_mode</td>
-        <td>{{ mode }}</td>
-    </tr>
-    <tr>
-        <td>
-            <form method="post" action="/">
-                <button type="submit" name="toggle_mode">Toggle Mode</button>
-            </form>
-        </td>
-
+        <td>postgrest_client_status</td>
+        <td>{{ postgrest_client_status }}</td>
     </tr>
 </table>
+
+<h2>Operating mode</h2>
+<p>
+    {% if activate_counting and activate_database_insertion %}
+        {{ "PRODUCTION" }}
+    {% else %}
+        {{ "CALIBRATION" }}
+    {% endif %}
+</p>
+<form method="post" action="/">
+    <table>
+        <tr>
+            <td>activate_counting</td>
+            <td>{{ activate_counting }}</td>
+            <td><button type="submit" name="toggle_counting">Toggle</button></td>
+        </tr>
+        <tr>
+            <td>activate_database_insertion</td>
+            <td>{{ activate_database_insertion }}</td>
+            <td><button type="submit" name="toggle_database_insertion">Toggle</button></td>
+        </tr>
+    </table>
+</form>
 {% endblock %}

@@ -41,19 +41,21 @@ class Web:
         """
         Handle the index page and toggle mode if requested
         """
-
         data = await request.post()
         if data:
-            # Check if the toggle_mode field is in the POST data
-            if "toggle_mode" in data:
-                # Toggle the boolean mode
-                self.counter.mode = not self.counter.mode       
+            # Check if the toggle fields are in the POST data
+            if "toggle_counting" in data:
+                self.counter.activate_counting = not self.counter.activate_counting
+            if "toggle_database_insertion" in data:
+                self.pgclient.activate_insertion = not self.pgclient.activate_insertion
 
         context = {
-            'model_state': "DOWN" if self.counter.model is None else "UP",
-            'camera_state': "DOWN" if self.counter.cap is None else "UP",
-            'postgrest_client_state': "DOWN" if self.pgclient.postgrest_client is None else "UP",
-            'mode': "PRODUCTION" if self.counter.mode else "CALIBRATION",  # Show Status using the boolean "On"/"Off"
+            'model_status': "DOWN" if self.counter.model is None else "UP",
+            'camera_status': "DOWN" if self.counter.cap is None else "UP",
+            'postgrest_client_status': "DOWN" if self.pgclient.postgrest_client is None else "UP",
+
+            'activate_counting': self.counter.activate_counting,
+            'activate_database_insertion': self.pgclient.activate_insertion,
         }
         response = await aiohttp_jinja2.render_template_async(
             'index.html', request, context)
