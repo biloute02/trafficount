@@ -26,9 +26,6 @@ class PGClient:
         # self.connection_message: str = "Uninitialized"
         # self.connection_last_date: datetime = datetime.date()
 
-        # Table to insert values
-        self.table: str = ""
-
         # Identification
         self.device_id: int = 0
         self.location_id: int = 0
@@ -76,10 +73,6 @@ class PGClient:
         # TODO
         assert(self.postgrest_client is not None)
 
-        # TODO: No error if table is the empty list
-        # Buffer inserted to
-        if not self.table:
-            logger.error(f"Table is empty")
             return False
 
         try:
