@@ -65,6 +65,7 @@ class Counter:
             return True
 
         except Exception:
+            self.model = None
             logger.exception("Failed to load the model")
             return False
 

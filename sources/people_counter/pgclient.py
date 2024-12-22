@@ -181,6 +181,7 @@ class PGClient:
             return True
 
         except Exception as e:
+            self.postgrest_client = None
             self.postgrest_client_exception = e
             logger.error(f"PostgreSQL client not initiated: {e}")
             return False

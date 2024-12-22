@@ -50,10 +50,12 @@ class Web:
                 self.pgclient.activate_insertion = not self.pgclient.activate_insertion
 
         context = {
-            'model_status': "DOWN" if self.counter.model is None else "UP",
-            'camera_status': "DOWN" if self.counter.cap is None else "UP",
-            'postgrest_client_status': "DOWN" if self.pgclient.postgrest_client is None else "UP",
+            # Status must be booleans
+            'model_status': self.counter.model is not None,
+            'camera_status': self.counter.cap is not None,
+            'postgrest_client_status': self.pgclient.postgrest_client is not None,
 
+            # Modes must be booleans
             'activate_counting': self.counter.activate_counting,
             'activate_database_insertion': self.pgclient.activate_insertion,
         }

@@ -12,15 +12,15 @@
 <table>
     <tr>
         <td>camera_status</td>
-        <td>{{ camera_status }}</td>
+        <td>{{ "UP" if camera_status else "DOWN" }}</td>
     </tr>
     <tr>
         <td>model_status</td>
-        <td>{{ model_status }}</td>
+        <td>{{ "UP" if model_status else "DOWN" }}</td>
     </tr>
     <tr>
         <td>postgrest_client_status</td>
-        <td>{{ postgrest_client_status }}</td>
+        <td>{{ "UP" if postgrest_client_status else "DOWN" }}</td>
     </tr>
 </table>
 
@@ -36,12 +36,12 @@
     <table>
         <tr>
             <td>activate_counting</td>
-            <td>{{ activate_counting }}</td>
+            <td>{{ "ON" if activate_counting else "OFF" }}</td>
             <td><button type="submit" name="toggle_counting">Toggle</button></td>
         </tr>
         <tr>
             <td>activate_database_insertion</td>
-            <td>{{ activate_database_insertion }}</td>
+            <td>{{ "ON" if activate_database_insertion else "OFF" }}</td>
             <td><button type="submit" name="toggle_database_insertion">Toggle</button></td>
         </tr>
     </table>
