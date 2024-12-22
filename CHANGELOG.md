@@ -3,8 +3,7 @@ Plan de développement du prototype
 ### 0.2.0 (Mise à jour suivi) en cours
 
 * Base de données multi tables
-* Activer le suivi
-* Ajout d'un bouton on / off (mode production ou calibrage)
+* Ajout de deux mode opératoires sur la page d’accueil web : activation du compteur et activation de l’insertion dans la BDD
 
 ### 0.1.1 
 

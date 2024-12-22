@@ -3,8 +3,6 @@
 * Activer le suivi sur un tronçon
   - Franchissement d’une ligne
 
-* Utiliser la base de données multi tables avec id du dispositif, id du lieu et id de résolution (Damien)
-
 * Gérer les erreurs si les résultas sont lus alors que le counter ne s’est pas encore lancé :
   - Derniers résultats
   - Dernière image annotée
