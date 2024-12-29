@@ -25,9 +25,14 @@ List of projects / guides / technologies / softwares used in this projects
 
 ## Web server
 
+* HTTP
+
+ - Redirections https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections
+
 * AIOHTTP
 
   - Quickstart web server https://docs.aiohttp.org/en/stable/web_quickstart.html
+  - Web library reference https://docs.aiohttp.org/en/stable/web_reference.html
 
 * Jinja 
 
