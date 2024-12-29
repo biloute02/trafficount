@@ -49,6 +49,9 @@ class Web:
             if "toggle_database_insertion" in data:
                 self.pgclient.activate_insertion = not self.pgclient.activate_insertion
 
+            # Redirect with the GET method
+            raise web.HTTPSeeOther(request.rel_url.path)
+
         context = {
             # Status must be booleans
             'model_status': self.counter.model is not None,
@@ -133,6 +136,9 @@ class Web:
                 except:
                     pass
 
+            # Redirect with the GET method
+            raise web.HTTPSeeOther(request.rel_url.path)
+
         context = {
             'url': self.pgclient.url,
             'key': "x" if self.pgclient.key else "",
@@ -177,6 +183,9 @@ class Web:
                     self.counter.confidence = float(data['confidence'])
                 except:
                     pass
+
+            # Redirect with the GET method
+            raise web.HTTPSeeOther(request.rel_url.path)
 
         context = {
             'delay': self.counter.delay,
