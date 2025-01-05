@@ -1,7 +1,5 @@
 ## High priority
 
-* Activer le suivi sur un tronçon
-  - Franchissement d’une ligne
 
 
 ## Medium priority

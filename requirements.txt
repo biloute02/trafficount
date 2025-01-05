@@ -2,6 +2,7 @@
 numpy
 opencv-python
 ultralytics
+shapely
 
 # Web server
 aiohttp
