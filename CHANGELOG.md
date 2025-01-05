@@ -1,9 +1,15 @@
 Plan de développement du prototype
 
-### 0.2.0 (Mise à jour suivi) en cours
+### 0.2.1 En cours
+
+* Ajout de la persistance de la configuration
+* Utilisation du modèle de données NCNN
+
+### 0.2.0 (Mise à jour suivi)
 
 * Base de données multi tables
-* Ajout de deux mode opératoires sur la page d’accueil web : activation du compteur et activation de l’insertion dans la BDD
+* Ajout de deux modes opératoires sur la page d’accueil web : activation du compteur et activation de l’insertion dans la BDD
+* Comptage par le franchissement d’une ligne (suivi)
 
 ### 0.1.1 
 
