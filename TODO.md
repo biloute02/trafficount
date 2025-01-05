@@ -3,9 +3,6 @@
 * Activer le suivi sur un tronçon
   - Franchissement d’une ligne
 
-* Gérer les erreurs si les résultas sont lus alors que le counter ne s’est pas encore lancé :
-  - Derniers résultats
-  - Dernière image annotée
 
 ## Medium priority
 

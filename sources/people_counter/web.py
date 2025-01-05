@@ -21,21 +21,39 @@ class Web:
         self.update_interval = 1
         self.config_file = "trafficount.conf" # json config
 
-    async def handle_boxes(self, request: web.BaseRequest) -> web.Response:
-        """
-        """
-        text = str(self.counter.last_result.boxes)
-        return web.Response(text=text)
-
     async def handle_last_frame(self, request: web.BaseRequest) -> web.Response:
         """
+        Display the last camera frame.
+        It is annoted if counting is activated.
+        The numpy array is encode to jpg before sending.
         """
         # encoding speed sort (timeit): bmp, jpg, png
         # 0.012, 0.497, 1.2771 secondes/(100xframes)
         # encoding size  sort: jpg, png, bmp
         # 50784, 296532, 921654 bytes
-        _, image = cv2.imencode(".jpg", self.counter.last_capture)
-        return web.Response(body=image.tobytes(), content_type="image/jpg")
+        if self.counter.last_frame is None:
+            return web.Response(text="No camera image")
+        else:
+            _, image = cv2.imencode(".jpg", self.counter.last_frame)
+            return web.Response(body=image.tobytes(), content_type="image/jpg")
+
+    async def handle_last_result(self, request: web.BaseRequest) -> web.Response:
+        """
+        Display the last result of the inference.
+        """
+        if self.counter.last_result is None:
+            return web.Response(text="No inference result")
+        else:
+            return web.Response(text=str(self.counter.last_result))
+
+    async def handle_last_boxes(self, request: web.BaseRequest) -> web.Response:
+        """
+        Display the last boxes object of the last inference result.
+        """
+        if self.counter.last_result is None or self.counter.last_result.boxes is None:
+            return web.Response(text="No inference boxes")
+        else:
+            return web.Response(text=str(self.counter.last_result.boxes))
 
     async def handle_index(self, request: web.BaseRequest) -> web.Response:
         """
@@ -202,8 +220,9 @@ class Web:
         # Add the routes
         app.add_routes([
             # Non templated
-            web.get('/boxes', self.handle_boxes),
             web.get('/last_frame', self.handle_last_frame),
+            web.get('/last_result', self.handle_last_result),
+            web.get('/last_boxes', self.handle_last_boxes),
 
             # Templated
             web.get("/", self.handle_index),

@@ -29,16 +29,17 @@ class Counter:
         self.delay: float = delay
         self.confidence: float = confidence
 
-        # Camera
-        self.cap: Optional[cv2.VideoCapture] = None
-
         # Detection model
         self.model: Optional[YOLO] = None
 
-        # Results
-        # TODO: Init values ?
-        self.last_result: Results
-        self.last_capture: np.ndarray
+        # Camera
+        self.cap: Optional[cv2.VideoCapture] = None
+        self.last_frame: Optional[cv2.Mat] = None
+
+        # Last inference and counting results
+        self.last_result: Optional[Results] = None
+
+
 
         self.people_count: int = 0
         self.greatest_id: int = 0
@@ -127,6 +128,7 @@ class Counter:
                 # Break the loop if the camera is disconnected
                 logger.error("Can't get next frame. Exit tracking...")
                 break
+            self.last_frame = frame
 
             # Check if counting is activated
             if not self.activate_counting:
