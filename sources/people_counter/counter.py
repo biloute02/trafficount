@@ -74,15 +74,11 @@ class Counter:
         """
         Open the camera
         """
-        # TODO: Set the camera resolution in this order
-        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        # success, frame = cap.read()
-        # cap.release()
         camera_index = 0
         self.cap = cv2.VideoCapture(camera_index)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        # Set the camera resolution
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         if not self.cap.isOpened():
             logger.error(f"Camera index {camera_index} not opened")
             # Don't forget to reset the capture to None
