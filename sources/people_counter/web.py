@@ -67,6 +67,10 @@ class Web:
             if "toggle_database_insertion" in data:
                 self.pgclient.activate_insertion = not self.pgclient.activate_insertion
 
+                # Clear the detection buffer when the insertion is activated
+                if self.pgclient.activate_insertion:
+                    self.pgclient.detection_buffer.clear()
+
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
 
