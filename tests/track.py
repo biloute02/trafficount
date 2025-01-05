@@ -14,13 +14,13 @@ model.track(
     #source = "videos/moi.mp4",
     source=0,
     #imgsz=(1080, 1920),
-    #imgsz=(720, 1280),
+    imgsz=(720, 1280),
     #imgsz=1280,
     #imgsz=(360, 640),
     stream_buffer=False,
     #vid_stride=3,
     show=True,
     conf=0.3,
-    tracker="./trackers/my_botsort_tracker.yaml",
+    #tracker="./trackers/my_botsort_tracker.yaml",
     #classes=[0]
 )
