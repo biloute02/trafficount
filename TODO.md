@@ -1,21 +1,19 @@
 ## High priority
 
+* Gérer la taille des buffers de comptage des ids
 
+* Ajouter la date d’insertion et le nombre d’éléments insérés dans le web
 
-## Medium priority
-
+* Boutons de rénitialisation pour les comptages totaux du franchissement de la ligne in et out
 
 * Format du modèle alternatif NCNN
 
-* Démarrage hors connexion lorsque le conteneur se crée pour la première fois :
-  - Le modèle est téléchargé lors du premier démarrage du conteneur
-  - Télécharger le modèle lors du `docker build`
-
 * Fichier de configuration pour la persistence lors du redémarrage du conteneur
-  à la place des variables d’environnement :
-  - Génération du fichier avec des valeurs par défaut s’il n’existe pas
-  - Écrasement du fichier pour toute modification de la configuration
-  - Chargement du fichier au démarrage
+  - Renplace les variables d’environnement
+  - Sauvegarde du fichier avec un bouton dans la page web d’accueil
+  - Chargement du fichier au démarrage et avec un bouton dans la page web d’accueil
+
+## Medium priority
 
 * Comptage dans un polygone au lieu de toute l’image
 

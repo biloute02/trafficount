@@ -28,6 +28,7 @@ List of projects / guides / technologies / softwares used in this projects
 * HTTP
 
  - Redirections https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections
+ - Post/Redirect/Get https://en.wikipedia.org/wiki/Post/Redirect/Get
 
 * AIOHTTP
 
