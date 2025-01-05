@@ -253,7 +253,7 @@ class Web:
 
             # Inference results
             web.get('/results', self.handle_results),
-            web.get('/live', self.handle_results_live),
+            web.get('/results/live', self.handle_results_live),
 
             # Database form
             web.get('/database', self.handle_configure_database),

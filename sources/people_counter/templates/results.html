@@ -34,14 +34,8 @@
         <td>buffer_length</td>
         <td>{{ buffer_length }}</td>
     </tr>
-    <!--
-    <tr>
-        <td>boxes</td>
-        <td><pre>{{ boxes }}</pre></td>
-    </tr>
-    -->
 </table>
 <hr>
-<img src="./last_frame" alt="Camera live image"/>
-{% block live %}{% endblock %}
+<img src="/last_frame" alt="Last capture image"/>
+<!-- Refresh header in HTML <meta http-equiv="refresh" content="{{ update_interval }}"> -->
 {% endblock %}
