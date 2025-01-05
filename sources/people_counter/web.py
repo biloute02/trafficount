@@ -107,28 +107,43 @@ class Web:
     async def handle_results_live(self, request: web.BaseRequest) -> web.Response:
         """
         """
+        response = await self.handle_results(request)
+        response.headers['refresh'] = str(self.update_interval)
+        return response
+
+    async def handle_configure_camera(self, request: web.BaseRequest) -> web.Response:
+        """
+        """
+        data = await request.post()
+        if data:
+            if data['line_first_point_x'] and data['line_first_point_y']:
+                try:
+                    self.counter.region[0] = (int(data['line_first_point_x']), int(data['line_first_point_y']))
+                except:
+                    pass
+            if data['line_second_point_x'] and data['line_second_point_y']:
+                try:
+                    self.counter.region[1] = (int(data['line_second_point_x']), int(data['line_second_point_y']))
+                except:
+                    pass
+
+            # Redirect with the GET method
+            raise web.HTTPSeeOther(request.rel_url.path)
+
         context = {
-            'update_interval': self.update_interval,
-            'people_count': self.counter.people_count,
-            'people_increment': self.counter.greatest_id,
-            'remaining_time': self.counter.remaining_time,
-            'buffer_length': len(self.pgclient.detection_buffer),
+            'line_first_point': self.counter.region[0],
+            'line_second_point': self.counter.region[1],
         }
         response = await aiohttp_jinja2.render_template_async(
-            'live.html', request, context)
+            'camera.html', request, context)
         return response
 
     async def handle_configure_database(self, request: web.BaseRequest) -> web.Response:
         """
         """
-        # TODO: Firefox resend the POST request even if the form is empty
         # TODO: show database connection error
-        error: str
-
         data = await request.post()
         if data:
-            # TODO: Use setters in pgclient to automatically call functions
-            # Set fields
             if data['url']:
                 self.pgclient.url = data['url']
             if data['key']:
@@ -195,8 +210,6 @@ class Web:
 
         data = await request.post()
         if data:
-            # TODO: Use setters in pgclient to automatically call functions
-            # Set fields
             if data['delay']:
                 try:
                     self.counter.delay = float(data['delay'])
@@ -234,7 +247,11 @@ class Web:
             web.get("/", self.handle_index),
             web.post("/", self.handle_index),
 
-            # TODO: One handle function with ?live=1 and live set in header.
+            # Camera image
+            web.get('/camera', self.handle_configure_camera),
+            web.post('/camera', self.handle_configure_camera),
+
+            # Inference results
             web.get('/results', self.handle_results),
             web.get('/live', self.handle_results_live),
 
