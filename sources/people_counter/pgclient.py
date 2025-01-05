@@ -82,11 +82,16 @@ class PGClient:
         if self.postgrest_client is not None:
             await self.resolution.retrieve_resolution_id(self.postgrest_client)
 
-    def insert_detection(self, people_count: int) -> None:
+    def insert_detection(
+        self,
+        people_image_count: int,
+        people_line_in_count: int,
+        people_line_out_count: int,
+    ) -> None:
         """
         Insert a detection to the buffer before being inserted to the database.
         """
-        detection = Detection(people_count)
+        detection = Detection(people_image_count, people_line_in_count, people_line_out_count)
         self.detection_buffer.append(detection)
 
     async def insert_detection_buffer(self) -> bool:
@@ -118,12 +123,15 @@ class PGClient:
             return False
 
         try:
+            # TODO: Move the table name and columns names in fields
             _ = (
                 await self.postgrest_client
-                .table(self.detection_buffer[0].table_name)
+                .table("detections_suivi")
                 .insert([
                     {
-                        "nombre_personnes": detection.people_count,
+                        "nombre_personnes_image": detection.people_image_count,
+                        "nombre_personnes_ligne_in": detection.people_line_in_count,
+                        "nombre_personnes_ligne_out": detection.people_line_out_count,
                         "temps": detection.time,
                         "id_lieu": self.location.id,
                         "id_appareil": self.device.id,

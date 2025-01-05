@@ -88,8 +88,14 @@ class Web:
         """
         """
         context = {
-            'people_count': self.counter.people_count,
+            'people_image_count': self.counter.people_image_count,
             'people_increment': self.counter.greatest_id,
+
+            'people_in_count': self.counter.in_count,
+            'people_out_count': self.counter.out_count,
+            'people_total_in_count': self.counter.total_in_count,
+            'people_total_out_count': self.counter.total_out_count,
+
             'remaining_time': self.counter.remaining_time,
             'buffer_length': len(self.pgclient.detection_buffer),
             # 'boxes': self.counter.last_result.boxes,
