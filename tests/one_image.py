@@ -10,7 +10,7 @@ model = YOLO(
 
 # Open the video file
 #video_path = "videos/tokyo_cats_festival_foule_720p.webm"
-#video_path=0
+video_path=0
 cap = cv2.VideoCapture(video_path)
 
 # Loop through the video frames
@@ -24,10 +24,15 @@ while cap.isOpened():
         results = model.track(frame, persist=True, imgsz=(720, 1280))
 
         result = results[0]
+        print(f"result: {result}")
         print(f"boxes: {result.boxes}")
-        print(f"masks: {result.masks}")
-        print(f"probs: {result.probs}")
-        print(f"obb: {result.obb}")
+        print(f"boxes conf: {result.boxes.conf.cpu().tolist()}")
+        # print(f"boxes xyxy: {result.boxes.xyxy.cpu().tolist()}")
+
+        # print(f"boxes: {result.boxes}")
+        # print(f"masks: {result.masks}")
+        # print(f"probs: {result.probs}")
+        # print(f"obb: {result.obb}")
 
         cv2.imshow("Tracking", result.plot())
         if cv2.waitKey(0) & 0xFF == ord("q"):
