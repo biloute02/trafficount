@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block body %}
+<form action="" method="post">
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>Current value</th>
+            <th>New value</th>
+        </tr>
+        <tr>
+            <td><label for="line_first_point">line_first_point</label></td>
+            <td><label for="line_first_point">{{ line_first_point }}</label></td>
+            <td id="line_first_point">
+                (<input id="line_first_point_x" name="line_first_point_x" type="number" placeholder="x" ="1" min="0" max="9999"/>,
+                <input id="line_first_point_y" name="line_first_point_y" type="number" placeholder="y" step="1" min="0" max="9999"/>)
+            </td>
+        </tr>
+        <tr>
+            <td><label for="line_second_point">line_second_point</label></td>
+            <td><label for="line_second_point">{{ line_second_point }}</label></td>
+            <td id="line_second_point">
+                (<input id="line_second_point_x" name="line_second_point_x" type="number" placeholder="x" step="1" min="0" max="9999"/>,
+                <input id="line_second_point_y" name="line_second_point_y" type="number" placeholder="y" step="1" min="0" max="9999"/>)
+            </td>
+        </tr>
+        <tr><td><br></td></tr> <!-- Line break -->
+        <tr>
+            <td></td>
+            <td></td>
+            <td><input type="submit" value="Change"/></td>
+        </tr>
+    </table>
+</form>
+<hr>
+<img src="/last_frame" alt="Camera live image"/>
+<!-- Refresh header equivalent in HTML <meta http-equiv="refresh" content="{{ update_interval }}"> -->
+{% endblock %}
