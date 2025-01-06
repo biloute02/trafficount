@@ -4,10 +4,6 @@
 
 * Ajouter la date d’insertion et le nombre d’éléments insérés dans le web
 
-* Boutons de rénitialisation pour les comptages totaux du franchissement de la ligne in et out
-
-* Format du modèle alternatif NCNN
-
 * Fichier de configuration pour la persistence lors du redémarrage du conteneur
   - Renplace les variables d’environnement
   - Sauvegarde du fichier avec un bouton dans la page web d’accueil
@@ -15,10 +11,16 @@
 
 ## Medium priority
 
+* Boutons de rénitialisation pour les comptages totaux du franchissement de la ligne in et out (?)
+
 * Comptage dans un polygone au lieu de toute l’image
 
-* Déterminer la résolution maximale de la caméra et l’utiliser pour le traitement
-  - Par défaut, `opencv` utilise la résolution (480,640)
+* Permettre de modifier le nom du modèle utilisé et le format (YOLO11n, YOLO11s, PyTorch, NCNN 640p, etc.)
+
+* Résolution de traitement
+  - Détection les résolutions de la caméra
+  - Permettre de modifier la résolution des images capturées par la caméra
+  - Changer la résolution de traitement
 
 * Insertion de l’appareil, du lieu ou de la résolution s’ils n’existent pas dans la base.
 
@@ -37,9 +39,6 @@
   - Voir *toutes* les erreurs (erreur chargement modèle, erreur chargement BDD, erreur chargement caméra)
 
 ## Idées
-
-* Les pages web results et live devraient être les mêmes :
-  - La page live a un paramètre dans son header pour recharger la page automatiquement.
 
 * Tester la connection à la base séparément :
   - Lors de l’initialisation du client postgrest init_pgclient()

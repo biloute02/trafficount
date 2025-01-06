@@ -4,7 +4,7 @@ from ultralytics import YOLO
 
 # Load the YOLO11 model
 model = YOLO(
-    model="yolo11n.pt",
+    model="yolo11n_ncnn_model",
     verbose=True,
 )
 
@@ -21,7 +21,11 @@ while cap.isOpened():
 
     if success:
         # Run YOLO11 tracking on the frame, persisting tracks between frames
-        results = model.track(frame, persist=True, imgsz=(720, 1280))
+        results = model.track(
+            frame,
+            persist=True,
+            # imgsz=(720, 1280)
+        )
 
         result = results[0]
         print(f"result: {result}")

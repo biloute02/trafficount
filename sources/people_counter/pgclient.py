@@ -39,7 +39,7 @@ class PGClient:
         # Foreign keys
         self.device: Device = Device("Raspberry PI 5 Damien")
         self.location: Location = Location("Prototype nomade")
-        self.resolution: Resolution = Resolution(1280, 720)
+        self.resolution: Resolution = Resolution(640, 480)
 
         # Interval for inserting to the database
         # What is the good default value for insertion delay?

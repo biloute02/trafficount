@@ -43,16 +43,17 @@ class Counter:
 
         # Line crossing
         # TODO: Init to the middle vertical line of the image
-        # self.region = [(320, 0), (320, 480)]  # Half of 480x640
-        self.region = [(640, 0), (640, 720)]  # Half of 720x1280
+        self.region = [(320, 0), (320, 480)]  # Half of 480x640
+        # self.region = [(640, 0), (640, 720)]  # Half of 720x1280
 
         # Last inference and counting results
         self.last_result: Optional[Results] = None
 
         # Dictionarry of id to list of points (track).
         # Track is a maximum of 50 points (use the deque to limit the size)
+        # With delay=100ms -> 10 points/seconds for 5 seconds
         # TODO: Limit the size of the dictionary (memory leak)
-        self.track_history: defaultdict[int, list[tuple[int, int]]] = defaultdict(lambda: deque([], 10))
+        self.track_history: defaultdict[int, list[tuple[int, int]]] = defaultdict(lambda: deque([], 50))
 
         # List of box IDs that have crossed the line.
         # TODO: Limit the size of the list (memory leak)
@@ -87,7 +88,8 @@ class Counter:
         # TODO: Catch exception or error?
         try:
             self.model = YOLO(
-                model="yolo11n.pt",
+                task="detect",
+                model="yolo11n_ncnn_model",
                 verbose=True,
             )
             logger.info("Model loaded")
@@ -164,7 +166,8 @@ class Counter:
             conf=self.confidence, # Confidence threshold
             verbose=False, # Suppress inference messages
             # imgsz=(1280, 736),  # Image size for infererence. Greater increase detection, increase time and reduce confidence
-            imgsz=(640, 480) # Default
+            # imgsz=(640, 480),  # Default image size (YOLO11n.pt)
+            imgsz=(640, 640),  # Image size for NCNN format. No detections with other resolutions
         )
         self.last_result = results[0]
 

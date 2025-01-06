@@ -21,14 +21,15 @@ region_points = [(500, 20), (500, 700)]  # For line counting
 # region_points = [(500, 20), (500, 700), (600, 700), (600, 20)]  # For line counting
 
 # Video writer
-# video_writer = cv2.VideoWriter("object_counting_output.avi", cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
+# video_writer = cv2.VideoWriter("object_counting_FAC_720p_conf0_25_yolo11n_10fps.avi", cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
 
 # Init ObjectCounter
 counter = solutions.ObjectCounter(
     show=True,  # Display the output
     region=region_points,  # Pass region points
-    model="yolo11n.pt",  # model="yolo11n-obb.pt" for object counting using YOLO11 OBB model.
+    model="yolo11n_ncnn_model",  # model="yolo11n-obb.pt" for object counting using YOLO11 OBB model.
     classes=[0,1],  # If you want to count specific classes i.e person and car with COCO pretrained model.
+    conf=0.25,
     # classes=[0, 2],  # If you want to count specific classes i.e person and car with COCO pretrained model.
     # show_in=True,  # Display in counts
     # show_out=True,  # Display out counts
@@ -37,6 +38,7 @@ counter = solutions.ObjectCounter(
 
 # Process video
 mod = 0
+im1 = None
 while cap.isOpened():
     success, im0 = cap.read()
     # print(im0.shape)
@@ -45,10 +47,10 @@ while cap.isOpened():
         break
 
     if mod % 3 == 0:
-        im0 = counter.count(im0)
+        im1 = counter.count(im0)
 
+    # video_writer.write(im1 if im1 is not None else im0)
     mod += 1
-    # video_writer.write(im0)
 
 cap.release()
 # video_writer.release()

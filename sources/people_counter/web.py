@@ -68,8 +68,11 @@ class Web:
                 self.pgclient.activate_insertion = not self.pgclient.activate_insertion
 
                 # Clear the detection buffer when the insertion is activated
+                # and all the informative counters.
                 if self.pgclient.activate_insertion:
                     self.pgclient.detection_buffer.clear()
+                    self.counter.total_in_count = 0
+                    self.counter.total_out_count = 0
 
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)

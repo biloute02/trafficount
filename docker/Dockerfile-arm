@@ -5,5 +5,8 @@ WORKDIR /trafficount
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY sources ./sources/
-COPY trackers ./trackers/
+# Download the models into the Docker image.
+COPY sources/import_model.py ./sources/import_model.py
+RUN python "/trafficount/sources/import_model.py"
+
+COPY sources ./sources

@@ -80,7 +80,7 @@ def count(frame: np.ndarray) -> np.ndarray:
         conf=0.5, # Confidence threshold
         verbose=True, # Suppress inference messages
         # INFO: hardcoded imgsz for the presentation
-        imgsz=(736, 1280)
+        # imgsz=(640, 480)
     )
     result = results[0]
 
@@ -137,8 +137,8 @@ def main():
     # Capture
     # cap = cv2.VideoCapture("videos/FAC_720p.webm")
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     assert cap.isOpened(), "Error reading video file"
     # w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
 
