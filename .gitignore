@@ -7,8 +7,10 @@ __pycache__
 
 # Python Torch
 *.pt
+*.torchscript
 
 # Videos
 *.mp4
 *.webm
 *.MOV
+*.avi

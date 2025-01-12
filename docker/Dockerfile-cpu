@@ -1,9 +1,18 @@
 FROM ultralytics/ultralytics:latest-cpu
 
+# Run the project in the /trafficount directory
 WORKDIR /trafficount
 
+# Install the project dependencies
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY sources ./sources/
-COPY trackers ./trackers/
+# Download the models into the Docker image.
+# The python script is run only if the file has changed
+COPY ./sources/import_model.py ./sources/import_model.py
+RUN python "/trafficount/sources/import_model.py"
+
+# Copy the sources
+COPY ./sources ./sources
+
+# TODO: Change the default entrypoint / CMD
