@@ -1,3 +1,6 @@
+# Effectively save results
+cachetools
+
 # Objet detection
 numpy
 opencv-python

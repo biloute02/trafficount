@@ -1,6 +1,10 @@
 Plan de développement du prototype
 
-### 0.2.1 En cours
+### 0.3.0 (En cours)
+
+* Limitation de la taille du buffer pour l’historique du traking
+
+### 0.2.1 (Format NCNN)
 
 * Ajout de la persistance de la configuration
 * Utilisation du modèle de données NCNN
@@ -11,7 +15,7 @@ Plan de développement du prototype
 * Ajout de deux modes opératoires sur la page d’accueil web : activation du compteur et activation de l’insertion dans la BDD
 * Comptage par le franchissement d’une ligne (suivi)
 
-### 0.1.1 
+### 0.1.1
 
 * Fonctionner à la résolution maximale pour la caméra (opencv et inférence)
 

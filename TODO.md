@@ -1,7 +1,5 @@
 ## High priority
 
-* Gérer la taille des buffers de comptage des ids
-
 * Ajouter la date d’insertion et le nombre d’éléments insérés dans le web
 
 * Fichier de configuration pour la persistence lors du redémarrage du conteneur

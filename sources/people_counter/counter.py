@@ -1,7 +1,8 @@
 import asyncio
 from collections import defaultdict, deque
+from cachetools import LRUCache
 import time
-from typing import Optional
+from typing import Optional, TypedDict
 import cv2
 import logging
 import numpy as np
@@ -42,22 +43,35 @@ class Counter:
         self.last_frame: Optional[cv2.Mat] = None
 
         # Line crossing
-        # TODO: Init to the middle vertical line of the image
+        # TODO: Init to the middle vertical line of the image automatically
         self.region = [(320, 0), (320, 480)]  # Half of 480x640
         # self.region = [(640, 0), (640, 720)]  # Half of 720x1280
 
         # Last inference and counting results
         self.last_result: Optional[Results] = None
 
-        # Dictionarry of id to list of points (track).
-        # Track is a maximum of 50 points (use the deque to limit the size)
-        # With delay=100ms -> 10 points/seconds for 5 seconds
-        # TODO: Limit the size of the dictionary (memory leak)
-        self.track_history: defaultdict[int, list[tuple[int, int]]] = defaultdict(lambda: deque([], 50))
+        class Track(TypedDict):
+            """
+            For each track, we store:
+            - Its limited list of points (x, y).
+            - If the line crossed the region and has been counted.
+            """
+            line: deque[tuple[int, int]]
+            counted: bool
 
-        # List of box IDs that have crossed the line.
-        # TODO: Limit the size of the list (memory leak)
-        self.counted_ids: list[int] = []
+        # LRU cache of track: list of points and.
+        # With maxsize=500, we buffer only the [maxsize] last recently used tracks.
+        # With maxlen=50 and a delay of 100ms, we can save 10 points/seconds for 5 seconds.
+        #
+        # Only the last two points are useful to check if a track crosses the region line.
+        # The other points are useful to plot a visual track on the image.
+        class TrackHistory(LRUCache):
+            def __missing__(self, key) -> Track:  # Overide the parent function
+                return {
+                    "line": deque(iterable=[], maxlen=50),
+                    "counted": False,
+                }
+        self.tracks_history: LRUCache[int, Track] = TrackHistory(maxsize=500)
 
         # In and out counts for each inference
         self.in_count = 0
@@ -128,7 +142,7 @@ class Counter:
         Count if the track is entering (IN) or leaving (OUT) the region
         """
         # Don't count the track intersection twice
-        if track_id in self.counted_ids:
+        if self.tracks_history[track_id]["counted"]:
             return
 
         # Region is a Line but could be implemented as a polygon
@@ -150,7 +164,7 @@ class Counter:
             else:  # Moving upward
                 self.out_count += 1
 
-            self.counted_ids.append(track_id)
+            self.tracks_history[track_id]["counted"] = True
 
     def count(self, frame: cv2.Mat, annotator: Annotator):
         """
@@ -198,7 +212,7 @@ class Counter:
             current_centroid = ((track_box[0] + track_box[2]) / 2, (track_box[1] + track_box[3]) / 2)
 
             # Append the position to the history
-            track_line = self.track_history[track_id]
+            track_line = self.tracks_history[track_id]["line"]
             track_line.append(current_centroid)
 
             # Annotate the track

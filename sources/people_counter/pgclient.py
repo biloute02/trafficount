@@ -33,6 +33,7 @@ class PGClient:
         # self.connection_last_date: datetime = datetime.date()
 
         # Buffer of detections
+        # If size=3600, one hour buffer for one insertion per second.
         self.detection_buffer_size: int = 3600
         self.detection_buffer: deque[Detection] = deque([], self.detection_buffer_size)
 
