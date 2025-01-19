@@ -67,11 +67,13 @@ class Counter:
         # The other points are useful to plot a visual track on the image.
         class TrackHistory(LRUCache):
             def __missing__(self, key) -> Track:  # Overide the parent function
-                return {
+                track = {
                     "line": deque(iterable=[], maxlen=50),
                     "counted": False,
                 }
-        self.tracks_history: LRUCache[int, Track] = TrackHistory(maxsize=500)
+                self[key] = track
+                return track
+        self.track_history: LRUCache[int, Track] = TrackHistory(maxsize=500)
 
         # In and out counts for each inference
         self.in_count = 0
@@ -142,7 +144,7 @@ class Counter:
         Count if the track is entering (IN) or leaving (OUT) the region
         """
         # Don't count the track intersection twice
-        if self.tracks_history[track_id]["counted"]:
+        if self.track_history[track_id]["counted"]:
             return
 
         # Region is a Line but could be implemented as a polygon
@@ -164,7 +166,7 @@ class Counter:
             else:  # Moving upward
                 self.out_count += 1
 
-            self.tracks_history[track_id]["counted"] = True
+            self.track_history[track_id]["counted"] = True
 
     def count(self, frame: cv2.Mat, annotator: Annotator):
         """
@@ -212,7 +214,7 @@ class Counter:
             current_centroid = ((track_box[0] + track_box[2]) / 2, (track_box[1] + track_box[3]) / 2)
 
             # Append the position to the history
-            track_line = self.tracks_history[track_id]["line"]
+            track_line = self.track_history[track_id]["line"]
             track_line.append(current_centroid)
 
             # Annotate the track
