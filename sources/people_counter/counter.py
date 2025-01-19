@@ -101,7 +101,6 @@ class Counter:
         """
         Load the YOLO11 model.
         """
-        # TODO: Catch exception or error?
         try:
             self.model = YOLO(
                 task="detect",
@@ -173,7 +172,8 @@ class Counter:
         Count the number of people on the frame (people_count).
         Count the number of different boxes detected (greatest_id).
         Count how many people have crossed the line (in_count/out_count).
-        :return: A new annotated frame with boxes and tracks
+        :param frame: The initial frame to track (non annotated).
+        :param annotator: The annotator to the image to annotate.
         """
         results = self.model.track(
             source=frame,
@@ -186,6 +186,9 @@ class Counter:
             imgsz=(640, 640),  # Image size for NCNN format. No detections with other resolutions
         )
         self.last_result = results[0]
+
+        # Draw the region just after the object tracking
+        annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
 
         track_ids: list[int] = []
         track_confidences: list[int] = []
@@ -272,17 +275,20 @@ class Counter:
                 # Break the loop if the camera is disconnected
                 logger.error("Can't get next frame. Exit tracking...")
                 break
-            self.last_frame = frame
+            self.last_frame = frame.copy()
 
-            # Annotate the image with the counting line
+            # Object to annotate the image
             annotator = Annotator(self.last_frame, line_width=2)
-            annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+
+            # Draw the region
+            annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))
 
             # Check if counting is activated
             if not self.activate_counting:
                 continue
 
-            # Visualize the results on the frame
+            # Count the number of peoole on the frame
+            # Visualisze the results with the annotator
             self.count(frame, annotator)
 
             # Export the results to the database

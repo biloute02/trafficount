@@ -24,7 +24,7 @@ class Web:
     async def handle_last_frame(self, request: web.BaseRequest) -> web.Response:
         """
         Display the last camera frame.
-        It is annoted if counting is activated.
+        It is annotated if counting is activated.
         The numpy array is encode to jpg before sending.
         """
         # encoding speed sort (timeit): bmp, jpg, png
