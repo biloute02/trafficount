@@ -47,4 +47,16 @@
         </tr>
     </table>
 </form>
+
+<h2>Testing features</h2>
+<form method="post" action="/">
+    <table>
+        <tr>
+            <td>activate_image_annotation</td>
+            <td>{{ "ON" if activate_image_annotation else "OFF" }}</td>
+            <td><button type="submit" name="toggle_image_annotation">Toggle</button></td>
+            <td>Annote the boxes on the frame. <b>CPU-consuming</b> task (OFF by default).</td>
+        </tr>
+    </table>
+</form>
 {% endblock %}

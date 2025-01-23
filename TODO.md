@@ -38,6 +38,10 @@
 
 ## Idées
 
+* Faire l’inférence sur un thread séparé :
+  - Accélérer le nombre d’images traité par seconde
+  - Enlever le temps d’exécution du web et du client postgrest
+
 * Tester la connection à la base séparément :
   - Lors de l’initialisation du client postgrest init_pgclient()
   - Différencier l’erreur d’insertion de l’erreur de connection

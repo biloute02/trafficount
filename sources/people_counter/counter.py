@@ -1,16 +1,15 @@
+import time
+import logging
 import asyncio
+import cv2
 from collections import deque
 from cachetools import LRUCache
-import time
 from typing import Optional, TypedDict
-import cv2
-import logging
+from shapely.geometry import LineString
 
 from ultralytics import YOLO # type: ignore
 from ultralytics.engine.results import Results # type: ignore
 from ultralytics.utils.plotting import Annotator, colors # type: ignore
-
-from shapely.geometry import LineString
 
 from .pgclient import PGClient
 
@@ -39,7 +38,7 @@ class Counter:
 
         # Camera
         self.cap: Optional[cv2.VideoCapture] = None
-        self.last_frame: Optional[cv2.Mat] = None
+        self.last_frame: Optional[cv2.typing.MatLike] = None
 
         # Line crossing
         # TODO: Init to the middle vertical line of the image automatically
@@ -89,12 +88,15 @@ class Counter:
         # Time to sleep before the next inference.
         self.remaining_time: float = 0
 
-        # Mode d'envoi vers la BDD - True = Oui / False = Non
+        # The last frame is an annotated image with the results
+        # instead of the original captured frame.
+        self.activate_image_annotation: bool = False
+
+        # Activate inference tracking and add the results to the buffer
         self.activate_counting: bool = False # Tracking disable at startup
 
         # Debugging
         self.last_exception: Exception = Exception()
-
 
     def init_model(self) -> bool:
         """
@@ -166,15 +168,21 @@ class Counter:
 
             self.track_history[track_id]["counted"] = True
 
-    def count(self, frame: cv2.Mat, annotator: Annotator):
+    def count(
+        self,
+        model: YOLO,
+        frame: cv2.typing.MatLike,
+        annotator: Optional[Annotator] = None
+    ) -> None:
         """
         Count the number of people on the frame (people_count).
         Count the number of different boxes detected (greatest_id).
         Count how many people have crossed the line (in_count/out_count).
+        :param model: The model to use for counting.
         :param frame: The initial frame to track (non annotated).
-        :param annotator: The annotator to the image to annotate.
+        :param annotator: The optional annotator to annotate the image.
         """
-        results = self.model.track(
+        results = model.track(
             source=frame,
             persist=True, # Do tracking by comparing with the result of the last frame
             classes=[0], # Detect only persons
@@ -187,7 +195,8 @@ class Counter:
         self.last_result = results[0]
 
         # Draw the region just after the object tracking
-        annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+        if annotator is not None:
+            annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
 
         track_ids: list[int] = []
         track_confidences: list[int] = []
@@ -213,19 +222,22 @@ class Counter:
         for track_id, track_confidence, track_box in zip(track_ids, track_confidences, track_boxes):
 
             # Calculate the position of the center of the box
-            current_centroid = ((track_box[0] + track_box[2]) / 2, (track_box[1] + track_box[3]) / 2)
+            current_centroid = (
+                int((track_box[0] + track_box[2]) / 2),
+                int((track_box[1] + track_box[3]) / 2))
 
             # Append the position to the history
             track_line = self.track_history[track_id]["line"]
             track_line.append(current_centroid)
 
             # Annotate the track
-            track_color = colors(int(track_id), True)  # A different color for each id
-            annotator.box_label(
-                track_box,
-                label=f"id: {track_id} conf: {round(track_confidence, 2)}",
-                color=track_color)
-            annotator.draw_centroid_and_tracks(track_line, color=track_color)
+            if annotator is not None:
+                track_color = colors(int(track_id), True)  # A different color for each id
+                annotator.box_label(
+                    track_box,
+                    label=f"id: {track_id} conf: {round(track_confidence, 2)}",
+                    color=track_color)
+                annotator.draw_centroid_and_tracks(track_line, color=track_color)
 
             # If the track has only one point skip counting
             if len(track_line) < 2:
@@ -242,6 +254,7 @@ class Counter:
         """
         Do tracking until error
         """
+        # TODO: Move the checkings inside the loop for dynamic camera or models?
         if self.cap is None or self.model is None:
             logger.error("Can't do tracking if the capture device or the model are None")
             return
@@ -274,21 +287,32 @@ class Counter:
                 # Break the loop if the camera is disconnected
                 logger.error("Can't get next frame. Exit tracking...")
                 break
-            self.last_frame = frame.copy()
-
-            # Object to annotate the image
-            annotator = Annotator(self.last_frame, line_width=2)
-
-            # Draw the region
-            annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))
 
             # Check if counting is activated
             if not self.activate_counting:
                 continue
 
-            # Count the number of peoole on the frame
-            # Visualisze the results with the annotator
-            self.count(frame, annotator)
+            # If in interactive mode, do annotations (CPU consumption).
+            if self.activate_image_annotation:
+                # Annotate the frame on a new copy
+                self.last_frame = frame.copy()
+
+                # Annotator of the copied frame
+                annotator = Annotator(self.last_frame, line_width=2)
+
+                # Draw the region
+                annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))
+
+                # Count the number of people on the frame and annote
+                self.count(self.model, frame, annotator)
+
+            # No annotations
+            else:
+                # The last frame is the original image
+                self.last_frame = frame
+
+                # Count the number of people only
+                self.count(self.model, frame)
 
             # Export the results to the database
             self.pgclient.insert_detection(self.people_image_count, self.in_count, self.out_count)

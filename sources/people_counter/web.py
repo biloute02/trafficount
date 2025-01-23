@@ -74,6 +74,9 @@ class Web:
                     self.counter.total_in_count = 0
                     self.counter.total_out_count = 0
 
+            if "toggle_image_annotation" in data:
+                self.counter.activate_image_annotation = not self.counter.activate_image_annotation
+
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
 
@@ -86,6 +89,9 @@ class Web:
             # Modes must be booleans
             'activate_counting': self.counter.activate_counting,
             'activate_database_insertion': self.pgclient.activate_insertion,
+
+            # Testing features
+            'activate_image_annotation': self.counter.activate_image_annotation,
         }
         response = await aiohttp_jinja2.render_template_async(
             'index.html', request, context)
