@@ -21,7 +21,7 @@ class Web:
         self.update_interval = 1
         self.config_file = "trafficount.conf" # json config
 
-    async def handle_last_frame(self, request: web.BaseRequest) -> web.Response:
+    async def handle_last_frame(self, request: web.Request) -> web.Response:
         """
         Display the last camera frame.
         It is annotated if counting is activated.
@@ -37,7 +37,7 @@ class Web:
             _, image = cv2.imencode(".jpg", self.counter.last_frame)
             return web.Response(body=image.tobytes(), content_type="image/jpg")
 
-    async def handle_last_result(self, request: web.BaseRequest) -> web.Response:
+    async def handle_last_result(self, request: web.Request) -> web.Response:
         """
         Display the last result of the inference.
         """
@@ -46,7 +46,7 @@ class Web:
         else:
             return web.Response(text=str(self.counter.last_result))
 
-    async def handle_last_boxes(self, request: web.BaseRequest) -> web.Response:
+    async def handle_last_boxes(self, request: web.Request) -> web.Response:
         """
         Display the last boxes object of the last inference result.
         """
@@ -55,7 +55,7 @@ class Web:
         else:
             return web.Response(text=str(self.counter.last_result.boxes))
 
-    async def handle_index(self, request: web.BaseRequest) -> web.Response:
+    async def handle_index(self, request: web.Request) -> web.Response:
         """
         Handle the index page and toggle mode if requested
         """
@@ -91,7 +91,7 @@ class Web:
             'index.html', request, context)
         return response
 
-    async def handle_results(self, request: web.BaseRequest) -> web.Response:
+    async def handle_results(self, request: web.Request) -> web.Response:
         """
         """
         context = {
@@ -111,26 +111,30 @@ class Web:
             'results.html', request, context)
         return response
 
-    async def handle_results_live(self, request: web.BaseRequest) -> web.Response:
+    async def handle_results_live(self, request: web.Request) -> web.Response:
         """
         """
         response = await self.handle_results(request)
         response.headers['refresh'] = str(self.update_interval)
         return response
 
-    async def handle_configure_camera(self, request: web.BaseRequest) -> web.Response:
+    async def handle_configure_camera(self, request: web.Request) -> web.Response:
         """
         """
         data = await request.post()
         if data:
             if data['line_first_point_x'] and data['line_first_point_y']:
                 try:
-                    self.counter.region[0] = (int(data['line_first_point_x']), int(data['line_first_point_y']))
+                    self.counter.region[0] = (
+                        int(data['line_first_point_x']),
+                        int(data['line_first_point_y']))
                 except:
                     pass
             if data['line_second_point_x'] and data['line_second_point_y']:
                 try:
-                    self.counter.region[1] = (int(data['line_second_point_x']), int(data['line_second_point_y']))
+                    self.counter.region[1] = (
+                        int(data['line_second_point_x']),
+                        int(data['line_second_point_y']))
                 except:
                     pass
 
@@ -145,7 +149,7 @@ class Web:
             'camera.html', request, context)
         return response
 
-    async def handle_configure_database(self, request: web.BaseRequest) -> web.Response:
+    async def handle_configure_database(self, request: web.Request) -> web.Response:
         """
         """
         # TODO: show database connection error
@@ -166,8 +170,7 @@ class Web:
                 try:
                     await self.pgclient.update_resolution(
                         int(data['resolution_width']),
-                        int(data['resolution_height'])
-                    )
+                        int(data['resolution_height']))
                 except:
                     pass
 
@@ -213,7 +216,7 @@ class Web:
             'database.html', request, context)
         return response
 
-    async def handle_configure_counter(self, request: web.BaseRequest) -> web.Response:
+    async def handle_configure_counter(self, request: web.Request) -> web.Response:
         """
         """
         # TODO: show database connection error

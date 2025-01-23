@@ -8,7 +8,7 @@ logger.setLevel(logging.DEBUG)
 
 class Device:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.table_name: str = "appareils"
 
         self.id_column_name: str = "id_appareil"

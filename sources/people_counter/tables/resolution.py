@@ -16,8 +16,8 @@ class Resolution:
         self.height_column_name: str = "hauteur"
 
         self.id: int = 0 # Uninitialised
-        self.width: str = width
-        self.height: str = height
+        self.width: int = width
+        self.height: int = height
 
         self.last_exception: Exception = Exception()
 

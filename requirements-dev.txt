@@ -1,0 +1,3 @@
+# Typing libraries
+types-shapely
+types-cachetools

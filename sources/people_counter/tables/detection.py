@@ -8,7 +8,7 @@ class Detection:
         people_image_count: int,
         people_line_in_count: int,
         people_line_out_count: int,
-    ):
+    ) -> None:
         self.people_image_count: int = people_image_count
         self.people_line_in_count: int = people_line_in_count
         self.people_line_out_count: int = people_line_out_count

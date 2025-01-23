@@ -8,7 +8,7 @@ logger.setLevel(logging.DEBUG)
 
 class Location:
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.table_name: str = "lieux"
 
         self.id_column_name: str = "id_lieu"

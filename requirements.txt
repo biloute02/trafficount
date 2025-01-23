@@ -1,11 +1,9 @@
-# Effectively save results
-cachetools
-
 # Objet detection
 numpy
 opencv-python
 ultralytics
 shapely
+cachetools  # Cache tracking results
 
 # Web server
 aiohttp

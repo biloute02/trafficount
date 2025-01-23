@@ -1,15 +1,14 @@
 import asyncio
-from collections import defaultdict, deque
+from collections import deque
 from cachetools import LRUCache
 import time
 from typing import Optional, TypedDict
 import cv2
 import logging
-import numpy as np
 
 from ultralytics import YOLO # type: ignore
 from ultralytics.engine.results import Results # type: ignore
-from ultralytics.utils.plotting import Annotator, colors
+from ultralytics.utils.plotting import Annotator, colors # type: ignore
 
 from shapely.geometry import LineString
 
@@ -67,7 +66,7 @@ class Counter:
         # The other points are useful to plot a visual track on the image.
         class TrackHistory(LRUCache):
             def __missing__(self, key) -> Track:  # Overide the parent function
-                track = {
+                track: Track = {
                     "line": deque(iterable=[], maxlen=50),
                     "counted": False,
                 }
