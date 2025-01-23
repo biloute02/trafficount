@@ -1,4 +1,5 @@
 from collections import deque
+from datetime import datetime
 from typing import Optional
 from postgrest import AsyncPostgrestClient
 import supabase
@@ -36,6 +37,11 @@ class PGClient:
         # If size=3600, one hour buffer for one insertion per second.
         self.detection_buffer_size: int = 3600
         self.detection_buffer: deque[Detection] = deque([], self.detection_buffer_size)
+
+        # Insertion results
+        self.last_insertion_date: str = "-"
+        self.last_insertion_count: int = 0
+        self.last_insertion_exception: Exception = Exception()
 
         # Foreign keys
         self.device: Device = Device("Raspberry PI 5 Damien")
@@ -143,11 +149,13 @@ class PGClient:
             )
 
             # If it succeeded (no exception raised)
+            self.last_insertion_date = str(datetime.now().replace(microsecond=0))
+            self.last_insertion_count = len(self.detection_buffer)
             self.detection_buffer.clear()
-            # TODO: Too verbose. Check length of buffer or set a variable to the result of insertion
-            # logger.info(f"Buffer inserted to {self.table}")
+
             return True
         except Exception as e:
+            self.last_insertion_exception = e
             logger.error(f"Failed to insert the buffer to the database: {e}")
             return False
 

@@ -203,6 +203,10 @@ class Web:
             'device_exception': str(self.pgclient.device.last_exception),
             'location_exception': str(self.pgclient.location.last_exception),
             'resolution_exception': str(self.pgclient.resolution.last_exception),
+
+            'last_insertion_date': self.pgclient.last_insertion_date,
+            'last_insertion_count': self.pgclient.last_insertion_count,
+            'last_insertion_exception': str(self.pgclient.last_insertion_exception),
         }
 
         response = await aiohttp_jinja2.render_template_async(
