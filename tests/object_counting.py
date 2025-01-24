@@ -3,10 +3,10 @@ import cv2
 
 from ultralytics import solutions  # type: ignore
 
-# cap = cv2.VideoCapture("videos/FAC_720p.webm")
+cap = cv2.VideoCapture("videos/FAC_720p.webm")
 
 # Only for cameras
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 
@@ -24,7 +24,7 @@ region_points = [(500, 20), (500, 700)]  # For line counting
 # Video writer
 filename = f"trafficount{datetime.now().strftime("%Y_%m_%d-%H_%M_%S")}.mp4"
 print(filename)
-video_writer = cv2.VideoWriter(filename, cv2.VideoWriter.fourcc(*"mp4v"), 5, (w, h))
+# video_writer = cv2.VideoWriter(filename, cv2.VideoWriter.fourcc(*"mp4v"), 5, (w, h))
 
 # Init ObjectCounter
 counter = solutions.ObjectCounter(
@@ -52,9 +52,9 @@ while cap.isOpened():
     #if mod % 3 == 0:
     im1 = counter.count(im0)
 
-    video_writer.write(im1 if im1 is not None else im0)
+    # video_writer.write(im1 if im1 is not None else im0)
     mod += 1
 
 cap.release()
-video_writer.release()
+# video_writer.release()
 cv2.destroyAllWindows()

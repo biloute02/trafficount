@@ -156,7 +156,8 @@ class Counter:
         # TODO: Remove hardcoded parameters for the
         # TODO: Remove typing warning for the cv2.VideoWriter_fourcc function
         # The filename must be valid on Windows and Linux (':' doesn't work on Windows)
-        filename = f"video_writer/trafficount-{datetime.now().strftime("%Y_%m_%d-%H_%M_%S")}.mp4"
+        date = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
+        filename = f"video_writer/trafficount-{date}.mp4"
         fps = 1 / self.delay
 
         self.video_writer = cv2.VideoWriter(
@@ -293,9 +294,12 @@ class Counter:
         Display total objects count on the last frame if the annotator is not None
         """
         if self.annotator is not None:
+            date = datetime.now().replace(microsecond=0)
             self.annotator.display_analytics(
                 im0=self.last_frame,
-                text={"IN": self.total_in_count, "OUT": self.total_out_count},
+                text={"TIME": str(date),
+                      "IN": self.total_in_count,
+                      "OUT": self.total_out_count},
                 txt_color=(104, 31, 17),
                 bg_color=(255, 255, 255),
                 margin=10)
@@ -347,17 +351,9 @@ class Counter:
             else:
                 self.display_region()
 
-            # Save the frame if frame saving is activated
-            if self.activate_video_writer:
-                if self.video_writer is not None:
-                    self.video_writer.write(self.last_frame)
-
-            # If not counting, stop now
-            if not self.activate_counting:
-                continue
-
-            # Export the results to the database
-            self.pgclient.insert_detection(self.people_image_count, self.in_count, self.out_count)
+            # If counting, export the results to the database
+            if self.activate_counting:
+                self.pgclient.insert_detection(self.people_image_count, self.in_count, self.out_count)
 
             # Reset the in and out count for each frame.
             # Save the total for fun.
@@ -368,6 +364,11 @@ class Counter:
 
             # Display the total in and out counts on the frame
             self.display_total_counts()
+
+            # Save the frame if frame saving is activated
+            if self.activate_video_writer:
+                if self.video_writer is not None:
+                    self.video_writer.write(self.last_frame)
 
     def free_camera(self):
         # Release the video capture object and close the display window
