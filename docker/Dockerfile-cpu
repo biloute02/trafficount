@@ -8,9 +8,13 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Download the models into the Docker image.
-# The python script is run only if the file has changed
+# The python scripts are rerun only if their above files changed
 COPY ./sources/import_model.py ./sources/import_model.py
 RUN python "/trafficount/sources/import_model.py"
+
+COPY ./sources/sonnyrollins.jpg ./sources/sonnyrollins.jpg
+COPY ./sources/run_model_once.py ./sources/run_model_once.py
+RUN python "/trafficount/sources/run_model_once.py"
 
 # Copy the sources
 COPY ./sources ./sources
