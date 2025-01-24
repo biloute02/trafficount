@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import logging
 import asyncio
@@ -95,7 +96,15 @@ class Counter:
         # Activate inference tracking and add the results to the buffer
         self.activate_counting: bool = False # Tracking disable at startup
 
+        # Save the frames in a video if enabled
+        # TODO: Add arguments fps, width and heigh depending of the delay value.
+        # TODO: Save separate images and not a video?
+        # BUG: If the counting is lagging behind, the video will accelerate
+        self.activate_video_writer: bool = False
+        self.video_writer: Optional[cv2.VideoWriter] = None
+
         # Debugging
+        # TODO: Change name of last_exception
         self.last_exception: Exception = Exception()
 
     def init_model(self) -> bool:
@@ -133,6 +142,28 @@ class Counter:
 
         logger.info(f"Camera index {camera_index} opened")
         return True
+
+    def init_video_writer(self) -> None:
+        """
+        Creat a new video writer
+        """
+        if self.video_writer is not None:
+            self.video_writer.release()
+            # TODO: Add the name of the filename released
+            logger.info("Existing video writer release")
+
+        # TODO: Remove hardcoded parameters for the
+        # TODO: Remove typing warning for the cv2.VideoWriter_fourcc function
+        # The filename must be valid on Windows and Linux (':' doesn't work on Windows)
+        filename = f"video_writer/trafficount-{datetime.now().strftime("%Y_%m_%d-%H_%M_%S")}.mp4"
+        fps = 1 / self.delay
+
+        self.video_writer = cv2.VideoWriter(
+            filename=filename,
+            fourcc=cv2.VideoWriter.fourcc(*"mp4v"),  # "m", "p", "4", "v"
+            fps=fps,
+            frameSize=(640, 480))  # (width, height)
+        logger.info(f"New video writer: filename={filename}, fps={fps}")
 
     def count_track_intersects_region(
         self,
@@ -172,7 +203,6 @@ class Counter:
         self,
         model: YOLO,
         frame: cv2.typing.MatLike,
-        annotator: Optional[Annotator] = None
     ) -> None:
         """
         Count the number of people on the frame (people_count).
@@ -180,7 +210,6 @@ class Counter:
         Count how many people have crossed the line (in_count/out_count).
         :param model: The model to use for counting.
         :param frame: The initial frame to track (non annotated).
-        :param annotator: The optional annotator to annotate the image.
         """
         results = model.track(
             source=frame,
@@ -190,11 +219,12 @@ class Counter:
             verbose=False, # Suppress inference messages
             # imgsz=(1280, 736),  # Image size for infererence. Greater increase detection, increase time and reduce confidence
             # imgsz=(640, 480),  # Default image size (YOLO11n.pt)
-            imgsz=(640, 640),  # Image size for NCNN format. No detections with other resolutions
+            # imgsz=(640, 640),  # Image size for NCNN format. No detections with other resolutions
         )
         self.last_result = results[0]
 
         # Draw the region just after the object tracking
+        annotator: Optional[Annotator] = Annotator(frame, line_width=2) if self.activate_image_annotation else None
         if annotator is not None:
             annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
 
@@ -216,7 +246,9 @@ class Counter:
         self.people_image_count = len(track_ids)
 
         # Count the greatest id of all time
-        self.greatest_id = max(self.greatest_id, max(track_ids, default=0)) # Use the default argument to prevent exception with the empty list
+        self.greatest_id = max(
+            self.greatest_id,
+            max(track_ids, default=0)) # Use the default argument to prevent exception with the empty list
 
         # Counting for each track
         for track_id, track_confidence, track_box in zip(track_ids, track_confidences, track_boxes):
@@ -287,32 +319,25 @@ class Counter:
                 # Break the loop if the camera is disconnected
                 logger.error("Can't get next frame. Exit tracking...")
                 break
+            self.last_frame = frame
 
-            # Check if counting is activated
+            # Count the number of people on the original frame
+            if self.activate_counting:
+                self.count(self.model, frame)
+
+            # Annotate the frame with the region only if counting is disabled
+            elif self.activate_image_annotation:
+                annotator = Annotator(frame, line_width=2)
+                annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+
+            # Save the frame if frame saving is activated
+            if self.activate_video_writer:
+                if self.video_writer is not None:
+                    self.video_writer.write(self.last_frame)
+
+            # If not counting, stop now
             if not self.activate_counting:
                 continue
-
-            # If in interactive mode, do annotations (CPU consumption).
-            if self.activate_image_annotation:
-                # Annotate the frame on a new copy
-                self.last_frame = frame.copy()
-
-                # Annotator of the copied frame
-                annotator = Annotator(self.last_frame, line_width=2)
-
-                # Draw the region
-                annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))
-
-                # Count the number of people on the frame and annote
-                self.count(self.model, frame, annotator)
-
-            # No annotations
-            else:
-                # The last frame is the original image
-                self.last_frame = frame
-
-                # Count the number of people only
-                self.count(self.model, frame)
 
             # Export the results to the database
             self.pgclient.insert_detection(self.people_image_count, self.in_count, self.out_count)

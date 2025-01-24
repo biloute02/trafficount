@@ -77,6 +77,19 @@ class Web:
             if "toggle_image_annotation" in data:
                 self.counter.activate_image_annotation = not self.counter.activate_image_annotation
 
+            if "toggle_video_writer" in data:
+                self.counter.activate_video_writer = not self.counter.activate_video_writer
+
+                # Create a new video
+                if self.counter.activate_video_writer:
+                    self.counter.init_video_writer()
+
+                # Stop the active running video
+                elif self.counter.video_writer is not None:
+                    # TODO: Release function in counter.py?
+                    self.counter.video_writer.release()
+                    self.counter.video_writer = None
+
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
 
@@ -92,6 +105,7 @@ class Web:
 
             # Testing features
             'activate_image_annotation': self.counter.activate_image_annotation,
+            'activate_video_writer': self.counter.activate_video_writer,
         }
         response = await aiohttp_jinja2.render_template_async(
             'index.html', request, context)

@@ -2,6 +2,8 @@ Plan de développement du prototype
 
 ### 0.3.0 (En cours)
 
+* Option pour enregistrer les frames dans une vidéo
+* Option pour activer ou désactiver les annotations
 * Limitation de la taille du buffer pour l’historique du traking
 
 ### 0.2.1 (Format NCNN)

@@ -6,7 +6,7 @@ List of projects / guides / technologies / softwares used in this projects
 
 ## OpenCV
 
- * Capture video (set resolution) https://docs.opencv.org/3.4/dd/d43/tutorial_py_video_display.html
+ * Capture video from a camera, set resolution and saving a video https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html
 
 ## PostgREST and Supabase
 

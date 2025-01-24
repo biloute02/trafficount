@@ -15,4 +15,7 @@ RUN python "/trafficount/sources/import_model.py"
 # Copy the sources
 COPY ./sources ./sources
 
+# Create the directory to save the generated videos
+RUN mkdir ./video_writer
+
 # TODO: Change the default entrypoint / CMD
