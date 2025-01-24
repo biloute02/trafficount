@@ -1,4 +1,4 @@
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore
 
 #
 # Voir pour le détail https://docs.ultralytics.com/modes/predict/#inference-arguments

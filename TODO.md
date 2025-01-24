@@ -1,11 +1,11 @@
 ## High priority
 
-* Ajouter la date d’insertion et le nombre d’éléments insérés dans le web
-
 * Fichier de configuration pour la persistence lors du redémarrage du conteneur
   - Renplace les variables d’environnement
   - Sauvegarde du fichier avec un bouton dans la page web d’accueil
   - Chargement du fichier au démarrage et avec un bouton dans la page web d’accueil
+
+* Vérifier le format des données récupérées avec les requêtes POST. Sastifaire *mypy*
 
 ## Medium priority
 

@@ -3,9 +3,9 @@ from typing import Optional
 import cv2
 
 import numpy as np
-from ultralytics import YOLO
-from ultralytics.engine.results import Results
-from ultralytics.utils.plotting import Annotator, colors
+from ultralytics import YOLO  # type: ignore
+from ultralytics.engine.results import Results  # type: ignore
+from ultralytics.utils.plotting import Annotator, colors  # type: ignore
 
 from shapely.geometry import LineString
 
@@ -27,7 +27,7 @@ greatest_id = 0
 # Dictionarry of id to list of points (track).
 # Track is a maximum of 50 points (use the deque to limit the size)
 # TODO: Limit the size of the dictionary
-track_history: defaultdict[int, list[tuple[int, int]]] = defaultdict(lambda: deque([], 50))
+track_history: defaultdict[int, deque[tuple[int, int]]] = defaultdict(lambda: deque([], 50))
 
 def count_track_intersects_region(
     current_centroid: tuple[int, int],
@@ -108,7 +108,9 @@ def count(frame: np.ndarray) -> np.ndarray:
     for track_id, track_box in zip(track_ids, track_boxes):
 
         # Calculate the position of the center of the box
-        current_centroid = ((track_box[0] + track_box[2]) / 2, (track_box[1] + track_box[3]) / 2)
+        current_centroid = (
+            int((track_box[0] + track_box[2]) / 2),
+            int((track_box[1] + track_box[3]) / 2))
 
         # Append the position to the history
         track_line = track_history[track_id]

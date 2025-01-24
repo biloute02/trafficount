@@ -1,4 +1,4 @@
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore
 
 # Load a YOLO11n PyTorch model
 model = YOLO("yolo11n.pt")

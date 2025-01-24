@@ -3,7 +3,7 @@ from collections import defaultdict
 import cv2
 import numpy as np
 
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore
 
 # Load the YOLO11 model
 model = YOLO("yolo11n.pt")
@@ -13,7 +13,7 @@ video_path = "videos/tokyo_cats_festival_foule_720p.webm"
 cap = cv2.VideoCapture(video_path)
 
 # Store the track history
-track_history = defaultdict(lambda: [])
+track_history: dict[int, list] = defaultdict(lambda: [])
 
 # Loop through the video frames
 while cap.isOpened():

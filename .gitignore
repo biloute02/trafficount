@@ -5,9 +5,10 @@ __pycache__
 # Environments
 *.env
 
-# Python Torch
+# YOLO models
 *.pt
 *.torchscript
+yolo11n_ncnn_model
 
 # Videos
 *.mp4
