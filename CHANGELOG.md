@@ -2,6 +2,7 @@ Plan de développement du prototype
 
 ### 0.3.0 (En cours)
 
+* Ajout des nombres de franchissement totaux IN et OUT sur l’images
 * Option pour enregistrer les frames dans une vidéo
 * Option pour activer ou désactiver les annotations
 * Limitation de la taille du buffer pour l’historique du traking

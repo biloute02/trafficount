@@ -92,6 +92,7 @@ class Counter:
         # The last frame is an annotated image with the results
         # instead of the original captured frame.
         self.activate_image_annotation: bool = False
+        self.annotator: Optional[Annotator] = None
 
         # Activate inference tracking and add the results to the buffer
         self.activate_counting: bool = False # Tracking disable at startup
@@ -224,9 +225,7 @@ class Counter:
         self.last_result = results[0]
 
         # Draw the region just after the object tracking
-        annotator: Optional[Annotator] = Annotator(frame, line_width=2) if self.activate_image_annotation else None
-        if annotator is not None:
-            annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+        self.display_region()
 
         track_ids: list[int] = []
         track_confidences: list[int] = []
@@ -263,13 +262,13 @@ class Counter:
             track_line.append(current_centroid)
 
             # Annotate the track
-            if annotator is not None:
+            if self.annotator is not None:
                 track_color = colors(int(track_id), True)  # A different color for each id
-                annotator.box_label(
+                self.annotator.box_label(
                     track_box,
                     label=f"id: {track_id} conf: {round(track_confidence, 2)}",
                     color=track_color)
-                annotator.draw_centroid_and_tracks(track_line, color=track_color)
+                self.annotator.draw_centroid_and_tracks(track_line, color=track_color)
 
             # If the track has only one point skip counting
             if len(track_line) < 2:
@@ -281,6 +280,25 @@ class Counter:
 
             # TODO: Count if centroid is in region (instead of counting in all the image)
             # count_track_in_region()
+
+    def display_region(self) -> None:
+        """
+        Display the crossing region on the last frame if the annotator is not None
+        """
+        if self.annotator is not None:
+            self.annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+
+    def display_total_counts(self) -> None:
+        """
+        Display total objects count on the last frame if the annotator is not None
+        """
+        if self.annotator is not None:
+            self.annotator.display_analytics(
+                im0=self.last_frame,
+                text={"IN": self.total_in_count, "OUT": self.total_out_count},
+                txt_color=(104, 31, 17),
+                bg_color=(255, 255, 255),
+                margin=10)
 
     async def do_tracking(self) -> None:
         """
@@ -320,15 +338,14 @@ class Counter:
                 logger.error("Can't get next frame. Exit tracking...")
                 break
             self.last_frame = frame
+            self.annotator = Annotator(frame, line_width=2) if self.activate_image_annotation else None
 
             # Count the number of people on the original frame
             if self.activate_counting:
                 self.count(self.model, frame)
-
-            # Annotate the frame with the region only if counting is disabled
-            elif self.activate_image_annotation:
-                annotator = Annotator(frame, line_width=2)
-                annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+            # Only display the region if not counting
+            else:
+                self.display_region()
 
             # Save the frame if frame saving is activated
             if self.activate_video_writer:
@@ -348,6 +365,9 @@ class Counter:
             self.total_out_count += self.out_count
             self.in_count = 0
             self.out_count = 0
+
+            # Display the total in and out counts on the frame
+            self.display_total_counts()
 
     def free_camera(self):
         # Release the video capture object and close the display window
