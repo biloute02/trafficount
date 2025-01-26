@@ -225,9 +225,6 @@ class Counter:
         )
         self.last_result = results[0]
 
-        # Draw the region just after the object tracking
-        self.display_region()
-
         track_ids: list[int] = []
         track_confidences: list[int] = []
         track_boxes: list[list[int]] = []
@@ -287,7 +284,10 @@ class Counter:
         Display the crossing region on the last frame if the annotator is not None
         """
         if self.annotator is not None:
-            self.annotator.draw_region(reg_pts=self.region, color=(255, 0, 255))  # Draw the region
+            self.annotator.draw_region(
+                reg_pts=self.region,
+                color=(255, 0, 255),
+                thickness=4)  # Draw the region
 
     def display_total_counts(self) -> None:
         """
@@ -347,9 +347,9 @@ class Counter:
             # Count the number of people on the original frame
             if self.activate_counting:
                 self.count(self.model, frame)
-            # Only display the region if not counting
-            else:
-                self.display_region()
+
+            # Display the region after counting
+            self.display_region()
 
             # If counting, export the results to the database
             if self.activate_counting:
