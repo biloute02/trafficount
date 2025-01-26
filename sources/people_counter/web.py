@@ -254,6 +254,11 @@ class Web:
                     self.counter.confidence = float(data['confidence'])
                 except:
                     pass
+            if data['aggregated_frames_number']:
+                try:
+                    self.counter.aggregated_frames_number = int(data['aggregated_frames_number'])
+                except:
+                    pass
 
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
@@ -261,6 +266,7 @@ class Web:
         context = {
             'delay': self.counter.delay,
             'confidence': self.counter.confidence,
+            'aggregated_frames_number': self.counter.aggregated_frames_number
         }
 
         response = await aiohttp_jinja2.render_template_async(

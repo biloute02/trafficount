@@ -1,6 +1,11 @@
 Plan de développement du prototype
 
-### 0.3.0 (En cours)
+### 0.4.0 (en cours)
+
+* (Ajout de la persistance de la configuration)
+* Aggréger plusieurs frames en une seule détection.
+
+### 0.3.0 (Write video)
 
 * Ajout des nombres de franchissement totaux IN et OUT sur l’images
 * Option pour enregistrer les frames dans une vidéo
@@ -9,7 +14,6 @@ Plan de développement du prototype
 
 ### 0.2.1 (Format NCNN)
 
-* Ajout de la persistance de la configuration
 * Utilisation du modèle de données NCNN
 
 ### 0.2.0 (Mise à jour suivi)

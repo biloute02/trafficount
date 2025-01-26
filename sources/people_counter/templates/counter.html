@@ -10,12 +10,19 @@
         <tr>
             <td><label for="delay">delay (seconds)</label></td>
             <td><label for="delay">{{ delay }}</label></td>
-            <td><input id="delay" name="delay" type="number" step="0.01" min="0" max="1" autofocus/></td>
+            <td><input id="delay" name="delay" type="number" step="0.001" min="0" max="1" autofocus/></td>
         </tr>
         <tr>
             <td><label for="confidence">confidence</label></td>
             <td><label for="confidence">{{ confidence }}</label></td>
-            <td><input id="confidence" name="confidence" type="number" step="0.01" min="0" max="1"/></td>
+            <td><input id="confidence" name="confidence" type="number" step="0.001" min="0" max="1"/></td>
+        </tr>
+        <tr>
+            <td><label for="aggregated_frames_number">aggregated_frames_number</label></td>
+            <td><label for="aggregated_frames_number">{{ aggregated_frames_number }}</label></td>
+            <td><input id="aggregated_frames_number"
+                name="aggregated_frames_number"
+                type="number" step="1" min="1" max="999999"/></td>
         </tr>
 
         <tr><td><br></td></tr> <!-- Line break -->

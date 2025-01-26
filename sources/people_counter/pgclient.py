@@ -39,6 +39,7 @@ class PGClient:
         self.detection_buffer: deque[Detection] = deque([], self.detection_buffer_size)
 
         # Insertion results
+        # TODO: last_insertion_date is not of type datetime
         self.last_insertion_date: str = "-"
         self.last_insertion_count: int = 0
         self.last_insertion_exception: Exception = Exception()

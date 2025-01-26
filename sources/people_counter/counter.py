@@ -29,10 +29,17 @@ class Counter:
         # Postgres client
         self.pgclient = pgclient
 
-        # Parameters
+        # Minimum elapsed time between two frames
+        # If the compute time is greater than delay, the counting is "lagging behind"
         # TODO: Add a minimum time for delay
         self.delay: float = delay
+
+        # Minimum confidence threshold for detections
         self.confidence: float = confidence
+
+        # Insert a detection in the database each number of frames
+        # Default is 1 to insert a detection for each frame.
+        self.aggregated_frames_number: int = 1
 
         # Detection model
         self.model: Optional[YOLO] = None
@@ -83,7 +90,10 @@ class Counter:
         self.total_in_count = 0
         self.total_out_count = 0
 
+        # The number of detected people on the last captured frame.
         self.people_image_count: int = 0
+
+        # The greatest box id of all time
         self.greatest_id: int = 0
 
         # Time to sleep before the next inference.
@@ -98,9 +108,6 @@ class Counter:
         self.activate_counting: bool = False # Tracking disable at startup
 
         # Save the frames in a video if enabled
-        # TODO: Add arguments fps, width and heigh depending of the delay value.
-        # TODO: Save separate images and not a video?
-        # BUG: If the counting is lagging behind, the video will accelerate
         self.activate_video_writer: bool = False
         self.video_writer: Optional[cv2.VideoWriter] = None
 
@@ -153,11 +160,13 @@ class Counter:
             # TODO: Add the name of the filename released
             logger.info("Existing video writer release")
 
-        # TODO: Remove hardcoded parameters for the
-        # TODO: Remove typing warning for the cv2.VideoWriter_fourcc function
         # The filename must be valid on Windows and Linux (':' doesn't work on Windows)
-        date = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
+        date: str = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
         filename = f"video_writer/trafficount-{date}.mp4"
+
+        # The fps is the inverse of the delay
+        # INFO: If the counting is lagging behind, the video will accelerate
+        # TODO: If the delay is changed, the fps is not changed
         fps = 1 / self.delay
 
         self.video_writer = cv2.VideoWriter(
@@ -316,6 +325,14 @@ class Counter:
         # Time of the last frame read
         start_time: float = time.time() # Initialization to now
 
+        # Increment of one for each frame
+        frame_count: int = 0
+
+        # Aggregated results to insert a new detection to the database
+        aggregated_people_image_count: int = 0
+        aggregated_in_count: int = 0
+        aggregated_out_count: int = 0
+
         # Loop through the video frames
         # TODO: Add a condition to stop looping
         while self.cap.isOpened():
@@ -351,14 +368,35 @@ class Counter:
             # Display the region after counting
             self.display_region()
 
-            # If counting, export the results to the database
+            # If counting, aggregate the results and insert it to the database
             if self.activate_counting:
-                self.pgclient.insert_detection(self.people_image_count, self.in_count, self.out_count)
 
-            # Reset the in and out count for each frame.
-            # Save the total for fun.
+                # Aggregate the last counting results
+                aggregated_people_image_count = max(
+                    aggregated_people_image_count, self.people_image_count)
+                aggregated_in_count += self.in_count
+                aggregated_out_count += self.out_count
+
+                # Insert only if the frame count is 0
+                if frame_count == 0:
+                    self.pgclient.insert_detection(
+                        aggregated_people_image_count,
+                        aggregated_in_count,
+                        aggregated_out_count)
+
+            # Increment the frame count in each loop
+            frame_count = (frame_count + 1) % self.aggregated_frames_number
+            if frame_count == 0:
+                # Reset the aggregates to 0 at each first frame
+                aggregated_people_image_count = 0
+                aggregated_in_count = 0
+                aggregated_out_count = 0
+
+            # Save the total in and out count locally.
             self.total_in_count += self.in_count
             self.total_out_count += self.out_count
+
+            # Reset the in and out count for each frame.
             self.in_count = 0
             self.out_count = 0
 
