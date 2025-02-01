@@ -2,7 +2,7 @@ Plan de développement du prototype
 
 ### 0.4.0 (en cours)
 
-* (Ajout de la persistance de la configuration)
+* Ajout de la persistance de la configuration
 * Aggréger plusieurs frames en une seule détection.
 
 ### 0.3.0 (Write video)

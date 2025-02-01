@@ -39,6 +39,7 @@ class Counter:
 
         # Insert a detection in the database each number of frames
         # Default is 1 to insert a detection for each frame.
+        # Must be greater or equals to 1
         self.aggregated_frames_number: int = 1
 
         # Detection model
@@ -114,6 +115,86 @@ class Counter:
         # Debugging
         # TODO: Change name of last_exception
         self.last_exception: Exception = Exception()
+
+    def toggle_counting(self, force: Optional[bool] = None) -> None:
+        self.activate_counting = force if force is not None else not self.activate_counting
+        logger.info(f"Set activate_counting={self.activate_counting}")
+
+    def toggle_image_annotation(self, force: Optional[bool] = None) -> None:
+        self.activate_image_annotation = force if force is not None else not self.activate_image_annotation
+        logger.info(f"Set activate_image_annotation={self.activate_image_annotation}")
+
+    def toggle_video_writer(self, force: Optional[bool] = None) -> None:
+        # New value of activate video writer
+        self.activate_video_writer = force if force is not None else not self.activate_video_writer
+        logger.info(f"Set activate_video_writer={self.activate_video_writer}")
+
+        # Create a new video
+        if self.activate_video_writer:
+            self.init_video_writer()
+
+        # Stop the active running video
+        elif self.video_writer is not None:
+            self.video_writer.release()
+            self.video_writer = None
+
+    def set_region_point_index(self, point: tuple[int | str, int | str], index: int) -> bool:
+        try:
+            point = (int(point[0]), int(point[1]))
+        except ValueError as e:
+            logger.error(f"Conversion to int failure: {e}")
+            return False
+        if point[0] < 0 or point[1] < 0:
+            logger.error(f"Coordinates must be positive: point={point}")
+            return False
+        self.region[index] = point
+        logger.info(f"Set region point: point={point} index={index}")
+        return True
+
+    def set_confidence(self, confidence: float | str) -> bool:
+        try:
+            confidence = float(confidence)
+        except ValueError:
+            logger.error(f"Confidence is not float: confidence={confidence}")
+            return False
+
+        if confidence < 0 or confidence > 1:
+            logger.error(f"Confidence must be between 0 and 1: confidence={confidence}")
+            return False
+
+        self.confidence = confidence
+        logger.info(f"Set confidence={confidence}")
+        return True
+
+    def set_delay(self, delay: float | str) -> bool:
+        try:
+            delay = float(delay)
+        except ValueError:
+            logger.error(f"Delay is not float: delay={delay}")
+            return False
+
+        if delay < 0:
+            logger.error(f"Delay must be positive: delay={delay}")
+            return False
+
+        self.delay = delay
+        logger.info(f"Set delay={delay}")
+        return True
+
+    def set_aggregated_frames_number(self, aggregated_frames_number: int | str) -> bool:
+        try:
+            aggregated_frames_number = int(aggregated_frames_number)
+        except ValueError:
+            logger.error(f"Aggregated frames number not int: {aggregated_frames_number}")
+            return False
+
+        if aggregated_frames_number < 1:
+            logger.error(f"Aggregated frames number must be greater or equals to 1: {aggregated_frames_number}")
+            return False
+
+        self.aggregated_frames_number = aggregated_frames_number
+        logger.info(f"Set aggregated_frames_number={aggregated_frames_number}")
+        return True
 
     def init_model(self) -> bool:
         """
@@ -385,7 +466,7 @@ class Counter:
                         aggregated_out_count)
 
             # Increment the frame count in each loop
-            frame_count = (frame_count + 1) % self.aggregated_frames_number
+            frame_count = (frame_count + 1) % max(self.aggregated_frames_number, 1)
             if frame_count == 0:
                 # Reset the aggregates to 0 at each first frame
                 aggregated_people_image_count = 0

@@ -1,11 +1,6 @@
 ## High priority
 
-* Fichier de configuration pour la persistence lors du redémarrage du conteneur
-  - Renplace les variables d’environnement
-  - Sauvegarde du fichier avec un bouton dans la page web d’accueil
-  - Chargement du fichier au démarrage et avec un bouton dans la page web d’accueil
-
-* Vérifier le format des données récupérées avec les requêtes POST. Sastifaire *mypy*
+?
 
 ## Medium priority
 
@@ -13,16 +8,12 @@
   - FPS
   - Durée entre deux détections
 
-* Logger à chaque fois qu’un champ est modifié dans le web
-
 * Ajouter bouton pour rénitialiser le buffer et les compteurs totaux IN et OUT
   - À la place de la rénitialisition quand on active l’insertion dans la base
   - Sur le menu d’accueil index.html
   - Reset all button ?
 
 * Comprendre le message « WARNING: not enough matching points »
-
-* Boutons de rénitialisation pour les comptages totaux du franchissement de la ligne in et out (?)
 
 * Comptage dans un polygone au lieu de toute l’image
 

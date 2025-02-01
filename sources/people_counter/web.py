@@ -75,10 +75,10 @@ class Web:
 
             # Operating modes (production or calibration)
             if "toggle_counting" in data:
-                self.counter.activate_counting = not self.counter.activate_counting
+                self.counter.toggle_counting()
 
             if "toggle_database_insertion" in data:
-                self.pgclient.activate_insertion = not self.pgclient.activate_insertion
+                self.pgclient.toggle_insertion()
 
                 # Clear the detection buffer when the insertion is activated
                 # and all the informative counters.
@@ -89,20 +89,10 @@ class Web:
 
             # Testing features (image annotation and video)
             if "toggle_image_annotation" in data:
-                self.counter.activate_image_annotation = not self.counter.activate_image_annotation
+                self.counter.toggle_image_annotation()
 
             if "toggle_video_writer" in data:
-                self.counter.activate_video_writer = not self.counter.activate_video_writer
-
-                # Create a new video
-                if self.counter.activate_video_writer:
-                    self.counter.init_video_writer()
-
-                # Stop the active running video
-                elif self.counter.video_writer is not None:
-                    # TODO: Release function in counter.py?
-                    self.counter.video_writer.release()
-                    self.counter.video_writer = None
+                self.counter.toggle_video_writer()
 
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
@@ -158,20 +148,12 @@ class Web:
         data_post = await request.post()
         data: dict[str, str] = {k: v for k, v in data_post.items() if isinstance(v, str)}
         if data:
-            if data['line_first_point_x'] and data['line_first_point_y']:
-                try:
-                    self.counter.region[0] = (
-                        int(data['line_first_point_x']),
-                        int(data['line_first_point_y']))
-                except:
-                    pass
-            if data['line_second_point_x'] and data['line_second_point_y']:
-                try:
-                    self.counter.region[1] = (
-                        int(data['line_second_point_x']),
-                        int(data['line_second_point_y']))
-                except:
-                    pass
+            if ((p1_x := data.get('line_first_point_x')) and
+                (p1_y := data.get('line_first_point_y'))):
+                self.counter.set_region_point_index((p1_x, p1_y), 0)
+            if ((p2_x := data.get('line_second_point_x')) and
+                (p2_y := data.get('line_second_point_y'))):
+                self.counter.set_region_point_index((p2_x, p2_y), 1)
 
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
@@ -257,21 +239,12 @@ class Web:
         data_post = await request.post()
         data: dict[str, str] = {k: v for k, v in data_post.items() if isinstance(v, str)}
         if data:
-            if data['delay']:
-                try:
-                    self.counter.delay = float(data['delay'])
-                except:
-                    pass
-            if data['confidence']:
-                try:
-                    self.counter.confidence = float(data['confidence'])
-                except:
-                    pass
-            if data['aggregated_frames_number']:
-                try:
-                    self.counter.aggregated_frames_number = int(data['aggregated_frames_number'])
-                except:
-                    pass
+            if delay := data.get('delay'):
+                self.counter.set_delay(delay)
+            if confidence := data.get('confidence'):
+                self.counter.set_confidence(confidence)
+            if aggregated_frames_number := data.get('aggregated_frames_number'):
+                self.counter.set_aggregated_frames_number(aggregated_frames_number)
 
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)

@@ -1,3 +1,4 @@
+from contextlib import suppress
 from dataclasses import dataclass
 import json
 import logging
@@ -27,6 +28,10 @@ class ConfMap:
     counting_confidence = "counting_confidence"
     counting_delay = "counting_delay"
     counting_aggregated_frames_number = "counting_aggregated_frames_number"
+    counting_line_p1_x = "counting_line_first_point_x"
+    counting_line_p1_y = "counting_line_first_point_y"
+    counting_line_p2_x = "counting_line_second_point_x"
+    counting_line_p2_y = "counting_line_second_point_y"
 
     activate_counting = "activate_counting"
     activate_database_insertion = "activate_database_insertion"
@@ -59,15 +64,28 @@ class Configuration:
         # print(f"{toto.alembrique=}".split("=")[0].split(".")[1])
 
         config: dict[str, str] = {
-            confmap.database_url:               self.pgclient.url,
-            confmap.database_key:               self.pgclient.key,
-            confmap.database_buffer_size:       str(self.pgclient.detection_buffer_size),
-            confmap.database_insert_delay:      str(self.pgclient.insertion_delay),
-            confmap.database_error_delay:       str(self.pgclient.error_delay),
+            confmap.database_url: self.pgclient.url,
+            confmap.database_key: self.pgclient.key,
+            confmap.database_buffer_size:  str(self.pgclient.detection_buffer_size),
+            confmap.database_insert_delay: str(self.pgclient.insertion_delay),
+            confmap.database_error_delay:  str(self.pgclient.error_delay),
+
             confmap.database_device_name:       self.pgclient.device.name,
             confmap.database_location_name:     self.pgclient.location.name,
             confmap.database_resolution_width:  str(self.pgclient.resolution.width),
             confmap.database_resolution_height: str(self.pgclient.resolution.height),
+
+            confmap.counting_confidence:               str(self.counter.confidence),
+            confmap.counting_delay:                    str(self.counter.delay),
+            confmap.counting_aggregated_frames_number: str(self.counter.aggregated_frames_number),
+            confmap.counting_line_p1_x: str(self.counter.region[0][0]),
+            confmap.counting_line_p1_y: str(self.counter.region[0][1]),
+            confmap.counting_line_p2_x: str(self.counter.region[1][0]),
+            confmap.counting_line_p2_y: str(self.counter.region[1][1]),
+
+            confmap.activate_counting:           str(self.counter.activate_counting),
+            confmap.activate_image_annotation:   str(self.counter.activate_image_annotation),
+            confmap.activate_database_insertion: str(self.pgclient.activate_insertion),
         }
 
         return config
@@ -116,9 +134,9 @@ class Configuration:
         """
         """
         # Set the database key or url
-        if (database_key := config.get(confmap.database_url)):
+        if (database_key := config.get(confmap.database_key)):
             self.pgclient.set_key(database_key)
-        if (database_url := config.get(confmap.database_key)):
+        if (database_url := config.get(confmap.database_url)):
             self.pgclient.set_url(database_url)
         if database_key or database_url:
             self.pgclient.init_pgclient()
@@ -134,6 +152,37 @@ class Configuration:
 
         # Set the delays
         if insert_delay := config.get(confmap.database_insert_delay):
-            self.pgclient.insertion_delay = self.pgclient.set_insertion_delay(insert_delay)
+            self.pgclient.set_insertion_delay(insert_delay)
         if error_delay := config.get(confmap.database_error_delay):
-            self.pgclient.insertion_delay = self.pgclient.set_error_delay(error_delay)
+            self.pgclient.set_error_delay(error_delay)
+
+        # Set the counting parameters
+        if confidence := config.get(confmap.counting_confidence):
+            self.counter.set_confidence(confidence)
+        if delay := config.get(confmap.counting_delay):
+            self.counter.set_delay(delay)
+        if aggregated_frames_number := config.get(confmap.counting_aggregated_frames_number):
+            self.counter.set_aggregated_frames_number(aggregated_frames_number)
+
+        # Set modes
+        # TODO: Convertions errors are not in toggle functions
+        if activate_counting := config.get(confmap.activate_counting):
+            with suppress(ValueError):
+                self.counter.toggle_counting(force=(activate_counting=="True"))
+        if activate_image_annotation := config.get(confmap.activate_image_annotation):
+            with suppress(ValueError):
+                self.counter.toggle_image_annotation(force=(activate_image_annotation=="True"))
+        if activate_insertion := config.get(confmap.activate_database_insertion):
+            with suppress(ValueError):
+                self.pgclient.toggle_insertion(force=(activate_insertion=="True"))
+
+        # Set the crossing line
+        if ((line_p1_x := config.get(confmap.counting_line_p1_x)) and
+            (line_p1_y := config.get(confmap.counting_line_p1_y))):
+            self.counter.set_region_point_index((line_p1_x, line_p1_y), 0)
+
+        if ((line_p2_x := config.get(confmap.counting_line_p2_x)) and
+            (line_p2_y := config.get(confmap.counting_line_p2_y))):
+            self.counter.set_region_point_index((line_p2_x, line_p2_y), 1)
+
+        logger.info("Configuration applied!")

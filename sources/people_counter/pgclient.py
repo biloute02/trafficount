@@ -57,6 +57,10 @@ class PGClient:
         # Activate the insertion of the detections values to the Database
         self.activate_insertion: bool = False
 
+    def toggle_insertion(self, force: Optional[bool] = None) -> None:
+        self.activate_insertion = force if force is not None else not self.activate_insertion
+        logger.info(f"Set activate_insertion={self.activate_insertion}")
+
     def set_insertion_delay(self, insertion_delay: int | str) -> bool:
         """
         """
@@ -266,10 +270,6 @@ class PGClient:
         """
         Insert the buffer periodically to the database
         """
-        # TODO: Init the postgrest client after loading the url and key from the configuration file.
-        # Init the Postgres Client
-        self.init_pgclient()
-
         logger.info("PostgreSQL daemon started")
         while True:
 
