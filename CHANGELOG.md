@@ -29,7 +29,6 @@ Plan de développement du prototype
 ### 0.1.0 (Prototype)
 
 * Interface web de contrôle
-
   * Ajout d’une template
   * Modifier quelques paramètres du client BDD et du counter sans vérifications
   * Voir l’état du client BDD et du counter
@@ -38,20 +37,14 @@ Plan de développement du prototype
 ### 0.0.1 (Avant prototype) OK
 
 * Détection des personnes `model.predict()`
-
   * Configuration du modèle (CPU, classe des personnes, FPS)
   * Choix du format du modèle NCNN
 
 * Traçage des personnes `model.track()`
-
 * Comptage des personnes
-
 * Serveur HTTP pour permettre de voir les métriques de comptage
-
 * Client pour envoyer les métriques vers une base de données
-
 * Faire fonctionner le projet dans un conteneur docker
 
 * Portage du projet vers un Raspberry PI
-
   * Connectivité au réseau internet

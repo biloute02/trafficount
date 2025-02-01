@@ -57,12 +57,47 @@ class PGClient:
         # Activate the insertion of the detections values to the Database
         self.activate_insertion: bool = False
 
+    def set_insertion_delay(self, insertion_delay: int | str) -> bool:
+        """
+        """
+        try:
+            insertion_delay = int(insertion_delay)
+        except ValueError:
+            logger.error(f"Delay not integer: insertion_delay={insertion_delay}")
+            return False
+
+        if insertion_delay < 0:
+            logger.error(f"Delay must be positive: insertion_delay={insertion_delay}")
+            return False
+
+        self.insertion_delay = insertion_delay
+        logger.info(f"Set insertion_delay={insertion_delay}")
+        return True
+
+    def set_error_delay(self, error_delay: int | str) -> bool:
+        """
+        """
+        try:
+            error_delay = int(error_delay)
+        except ValueError:
+            logger.error(f"Delay not integer: error_delay={error_delay}")
+            return False
+
+        if error_delay < 0:
+            logger.error(f"Delay must be positive: error_delay={error_delay}")
+            return False
+
+        self.error_delay = error_delay
+        logger.info(f"Set error_delay={error_delay}")
+        return True
+
     async def update_device(self, device_name: str) -> None:
         """
         Update the device and try to retrieve its id from the database.
         """
         # Create a new device
         self.device = Device(device_name)
+        logger.info(f"Set device_name={device_name}")
 
         # Retrive its id
         if self.postgrest_client is not None:
@@ -74,21 +109,35 @@ class PGClient:
         """
         # Create a new device
         self.location = Location(location_name)
+        logger.info(f"Set location_name={location_name}")
 
         # Retrive its id
         if self.postgrest_client is not None:
             await self.location.retrieve_location_id(self.postgrest_client)
 
-    async def update_resolution(self, width: int, height: int) -> None:
+    async def update_resolution(self, width: int | str, height: int | str) -> bool:
         """
         Update the resolution and try to retrieve its id from the database.
         """
+        try:
+            width = int(width)
+            height = int(height)
+        except ValueError:
+            logger.error(f"Resolution not integers: width={width} height={height}")
+            return False
+
+        if width < 0 or width > 9999 or height < 0 or height > 9999:
+            logger.error(f"Resolution not between 0 and 9999: width={width} height={height}")
+            return False
+
         # Create a new device
         self.resolution = Resolution(width, height)
+        logger.info(f"Set width={width} height={height}")
 
         # Retrive its id
         if self.postgrest_client is not None:
             await self.resolution.retrieve_resolution_id(self.postgrest_client)
+        return True
 
     def insert_detection(
         self,
@@ -99,6 +148,7 @@ class PGClient:
         """
         Insert a detection to the buffer before being inserted to the database.
         """
+        # No logging, too verbose
         detection = Detection(people_image_count, people_line_in_count, people_line_out_count)
         self.detection_buffer.append(detection)
 
@@ -166,6 +216,14 @@ class PGClient:
     #     :return: True if the client can query the database, else False
     #     """
     #     return True
+
+    def set_url(self, url: str) -> None:
+        self.url = url
+        logger.info(f"Set database url={url}")
+
+    def set_key(self, key: str) -> None:
+        self.key = key
+        logger.info(f"Set database key={key}")
 
     def init_pgclient(self) -> bool:
         """

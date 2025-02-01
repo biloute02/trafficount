@@ -1,6 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
 
+<form method="post" action="/">
+    <table>
+        <tr>
+            <td><button type="submit" name="save_configuration">Save configuration</button></td>
+            <td>Save the running configuration. Retain the configuration after reboot</td>
+        </tr>
+    </table>
+</form>
+
 <h2>Status</h2>
 <p>
     {% if camera_status and model_status and postgrest_client_status %}

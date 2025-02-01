@@ -3,23 +3,30 @@ from aiohttp import web
 import aiohttp_jinja2
 import cv2
 import jinja2
+import logging
 
+from .configuration import Configuration
 from .counter import Counter
 from .pgclient import PGClient
 
-import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
 class Web:
 
-    def __init__(self, counter: Counter, pgclient: PGClient) -> None:
+    def __init__(
+        self,
+        counter: Counter,
+        pgclient: PGClient,
+        configurator: Configuration,
+    ) -> None:
         self.counter = counter
         self.pgclient = pgclient
+        self.configurator = configurator
 
         self.update_interval = 1
-        self.config_file = "trafficount.conf" # json config
 
     async def handle_last_frame(self, request: web.Request) -> web.Response:
         """
@@ -61,9 +68,15 @@ class Web:
         """
         data = await request.post()
         if data:
-            # Check if the toggle fields are in the POST data
+            # Save the configuration
+            if "save_configuration" in data:
+                if config := self.configurator.generate_configuration():
+                    await self.configurator.save_configuration_to_file(config)
+
+            # Operating modes (production or calibration)
             if "toggle_counting" in data:
                 self.counter.activate_counting = not self.counter.activate_counting
+
             if "toggle_database_insertion" in data:
                 self.pgclient.activate_insertion = not self.pgclient.activate_insertion
 
@@ -74,6 +87,7 @@ class Web:
                     self.counter.total_in_count = 0
                     self.counter.total_out_count = 0
 
+            # Testing features (image annotation and video)
             if "toggle_image_annotation" in data:
                 self.counter.activate_image_annotation = not self.counter.activate_image_annotation
 
@@ -141,7 +155,8 @@ class Web:
     async def handle_configure_camera(self, request: web.Request) -> web.Response:
         """
         """
-        data = await request.post()
+        data_post = await request.post()
+        data: dict[str, str] = {k: v for k, v in data_post.items() if isinstance(v, str)}
         if data:
             if data['line_first_point_x'] and data['line_first_point_y']:
                 try:
@@ -171,39 +186,39 @@ class Web:
 
     async def handle_configure_database(self, request: web.Request) -> web.Response:
         """
+        Configure the pgclient to access the database and display useful information.
+
+        Display pgclient configurations arguments (key, url),
+        database ids and exeptions raised for not retrieving these ids,
+        insertion and error delay before retry, and finally
+        last insertion date, count and success.
         """
-        # TODO: show database connection error
-        data = await request.post()
+        data_post = await request.post()
+        data: dict[str, str] = {k: v for k, v in data_post.items() if isinstance(v, str)}
         if data:
-            if data['url']:
-                self.pgclient.url = data['url']
-            if data['key']:
-                self.pgclient.key = data['key']
-            if data['url'] or data['key']:
+            # Database access
+            if url := data.get('url'):
+                self.pgclient.set_url(url)
+            if key := data.get('key'):
+                self.pgclient.set_key(key)
+            if url or key:
                 self.pgclient.init_pgclient()
 
-            if data['device_name']:
-                await self.pgclient.update_device(data['device_name'])
-            if data['location_name']:
-                await self.pgclient.update_location(data['location_name'])
-            if data['resolution_width'] and data['resolution_height']:
-                try:
-                    await self.pgclient.update_resolution(
-                        int(data['resolution_width']),
-                        int(data['resolution_height']))
-                except:
-                    pass
+            # Database tables foreign ids
+            if device_name := data.get('device_name'):
+                await self.pgclient.update_device(device_name)
+            if location_name := data.get('location_name'):
+                await self.pgclient.update_location(location_name)
+            if ((resolution_width := data.get('resolution_width')) and
+                (resolution_height := data.get('resolution_height'))):
+                await self.pgclient.update_resolution(
+                    resolution_width, resolution_height)
 
-            if data['insertion_delay']:
-                try:
-                    self.pgclient.insertion_delay = int(data['insertion_delay'])
-                except:
-                    pass
-            if data['error_delay']:
-                try:
-                    self.pgclient.error_delay = int(data['error_delay'])
-                except:
-                    pass
+            # Database interaction delays
+            if insertion_delay := data.get('insertion_delay'):
+                self.pgclient.set_insertion_delay(insertion_delay)
+            if error_delay := data.get('error_delay'):
+                self.pgclient.set_error_delay(error_delay)
 
             # Redirect with the GET method
             raise web.HTTPSeeOther(request.rel_url.path)
@@ -239,10 +254,8 @@ class Web:
     async def handle_configure_counter(self, request: web.Request) -> web.Response:
         """
         """
-        # TODO: show database connection error
-        error: str
-
-        data = await request.post()
+        data_post = await request.post()
+        data: dict[str, str] = {k: v for k, v in data_post.items() if isinstance(v, str)}
         if data:
             if data['delay']:
                 try:
