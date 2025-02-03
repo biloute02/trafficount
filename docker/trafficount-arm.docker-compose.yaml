@@ -10,6 +10,7 @@ services:
      - "/trafficount/sources/main_counter.py"
     volumes:
      - ./video_writer:/trafficount/video_writer
+     - ./configuration:/trafficount/configuration
     env_file:
      - pgclient.env
     restart: always # Redémarrer le conteneur au redémarrage

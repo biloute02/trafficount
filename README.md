@@ -21,31 +21,32 @@ docker push biloute02/trafficount:{tag}
 
 Create `pgclient.env`:
 
-```
-SUPABASE_URL="https://x.x.x.x:8443/"
-SUPABASE_KEY="x"
-SUPABASE_TABLE="detections_personnes"
+```bash
+# Default value if not specified
+CONFIG_PATH="configuration/trafficount.json"
 ```
 
 Run:
 
-```
+```bash
 docker run --env-file docker/pgclient.env --name trafficount -it --rm trafficount:latest-cpu python3 /trafficount/sources/main_counter.py
 ```
-```
+
+or
+
+```bash
 docker-compose up
 ```
 
 ### Python client Windows
 
 ```ps
-$Env:SUPABASE_URL = "https://x.x.x.x:8443/"
-$Env:SUPABASE_KEY = "x"
+$Env:CONFIG_PATH = "configuration/trafficount.json"
 ```
 
 Run:
 
-```
+```ps
 .\.venv\Scripts\Activate.ps1
 python3 sources/main_counter.py
 ```

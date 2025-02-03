@@ -29,6 +29,11 @@ class Device:
         if self.id:
             return True
 
+        # Check if the device name exists
+        if not self.name:
+            logger.error(f"No device name")
+            return False
+
         # Fetch the device id from the table
         try:
             response = (

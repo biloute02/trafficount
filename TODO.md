@@ -4,6 +4,8 @@
 
 ## Medium priority
 
+* Les dossiers video_writer et configuration déclarés en volume dans le Dockerfile
+
 * Dans la page counter.html, calculer les informations utiles
   - FPS
   - Durée entre deux détections

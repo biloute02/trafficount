@@ -28,6 +28,11 @@ class Location:
         if self.id:
             return True
 
+        # Check if the location name exists
+        if not self.name:
+            logger.error(f"No location name")
+            return False
+
         # Fetch the location id from the table
         try:
             response = (

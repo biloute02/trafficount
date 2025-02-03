@@ -45,8 +45,8 @@ class PGClient:
         self.last_insertion_exception: Exception = Exception()
 
         # Foreign keys
-        self.device: Device = Device("Raspberry PI 5 Damien")
-        self.location: Location = Location("Prototype nomade")
+        self.device: Device = Device("")
+        self.location: Location = Location("")
         self.resolution: Resolution = Resolution(640, 480)
 
         # Interval for inserting to the database

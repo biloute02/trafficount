@@ -1,6 +1,11 @@
 Plan de développement du prototype
 
-### 0.4.0 (en cours)
+### 0.4.1
+
+* Valeur par défaut du lieu et de l’appareil est une chaîne vide.
+* Mise à jour des docker-compose pour monter le volume de configuration.
+
+### 0.4.0 (Persistence)
 
 * Ajout de la persistance de la configuration
 * Aggréger plusieurs frames en une seule détection.
