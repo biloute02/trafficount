@@ -13,7 +13,7 @@ class Detection:
         self.people_line_in_count: int = people_line_in_count
         self.people_line_out_count: int = people_line_out_count
 
-        self.time: str = str(datetime.now().replace(microsecond=0))
+        self.time: str = str(datetime.now())  # Keep microsend for exact detection time
 
     # TODO: Add the insertion to the Detection class?
     # - The foreign device/location/resolution key fields.

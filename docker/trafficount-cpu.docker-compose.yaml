@@ -1,6 +1,6 @@
 services:
   trafficount:
-    image: biloute02/trafficount:latest-cpu
+    image: biloute02/trafficount:0.4.1-cpu
     ports:
      - "8080:8080/tcp"
     devices:
@@ -9,8 +9,8 @@ services:
      - python
      - "/trafficount/sources/main_counter.py"
     volumes:
-     - ./video_writer:/trafficount/video_writer
-     - ./configuration:/trafficount/configuration
+     - "./video_writer:/trafficount/video_writer"
+     - "./configuration:/trafficount/configuration"
     env_file:
      - pgclient.env
     restart: always

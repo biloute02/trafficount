@@ -1,6 +1,6 @@
 ## High priority
 
-?
+* Afficher la version de trafficount dans le web
 
 ## Medium priority
 

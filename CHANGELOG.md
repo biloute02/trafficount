@@ -1,5 +1,9 @@
 Plan de développement du prototype
 
+### 0.4.2
+
+* Microseconds for insertion and detection time.
+
 ### 0.4.1
 
 * Valeur par défaut du lieu et de l’appareil est une chaîne vide.
