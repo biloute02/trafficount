@@ -1,8 +1,18 @@
 ## High priority
 
+* Permettre un autre type de caméra que /dev/video0 
+  - Soit côté système (ex: caméra IP -> /dev/video0)
+  - Soit côté opencv (ex: open("url_caméra_ip"))
+
+* Possibiliter de choisir le modèle utiliser
+
 * Afficher la version de trafficount dans le web
 
+* Afficher l’exception pour l’initialision du client postgrest à côté du champ key
+
 ## Medium priority
+
+* Si la ligne de franchissement est à 45°, le sens est indéterminé
 
 * Les dossiers video_writer et configuration déclarés en volume dans le Dockerfile
 

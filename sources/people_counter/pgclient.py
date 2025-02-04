@@ -204,7 +204,7 @@ class PGClient:
             )
 
             # If it succeeded (no exception raised)
-            self.last_insertion_date = str(datetime.now()) # Keep microsend for exact insertion time
+            self.last_insertion_date = str(datetime.now())  # Keep microsend for exact insertion time
             self.last_insertion_count = len(self.detection_buffer)
             self.detection_buffer.clear()
 
